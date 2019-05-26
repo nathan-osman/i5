@@ -16,16 +16,33 @@ func main() {
 	app.Name = "i5"
 	app.Usage = "reverse proxy for Docker containers"
 	app.Flags = []cli.Flag{
+		cli.BoolFlag{
+			Name:   "debug",
+			EnvVar: "DEBUG",
+			Usage:  "enable debug mode",
+		},
 		cli.StringFlag{
 			Name:   "docker-host",
+			Value:  "unix:///var/run/docker.sock",
 			EnvVar: "DOCKER_HOST",
 			Usage:  "host running Docker",
 		},
 		cli.StringFlag{
-			Name:   "server-addr",
+			Name:   "email",
+			EnvVar: "EMAIL",
+			Usage:  "email address to use for challenges",
+		},
+		cli.StringFlag{
+			Name:   "http-addr",
 			Value:  ":http",
-			EnvVar: "SERVER_ADDR",
-			Usage:  "address to listen on",
+			EnvVar: "HTTP_ADDR",
+			Usage:  "HTTP address to listen on",
+		},
+		cli.StringFlag{
+			Name:   "https-addr",
+			Value:  ":https",
+			EnvVar: "HTTPS_ADDR",
+			Usage:  "HTTPS address to listen on",
 		},
 	}
 	app.Action = func(c *cli.Context) error {
@@ -41,8 +58,11 @@ func main() {
 
 		// Create the server
 		sv, err := server.New(&server.Config{
-			Addr:    c.String("server-addr"),
-			Dockmon: dm,
+			Debug:     c.Bool("debug"),
+			Email:     c.String("email"),
+			HTTPAddr:  c.String("http-addr"),
+			HTTPSAddr: c.String("https-addr"),
+			Dockmon:   dm,
 		})
 		if err != nil {
 			return err

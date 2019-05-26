@@ -74,7 +74,7 @@ func NewFromContainer(ctx context.Context, client *client.Client, id string) (*S
 	if containerJSON, err := client.ContainerInspect(ctx, id); err == nil {
 		return New(
 			containerJSON.ID,
-			containerJSON.Name,
+			containerJSON.Name[1:],
 			containerJSON.Config.Labels,
 		)
 	} else {

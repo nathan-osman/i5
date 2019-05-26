@@ -6,8 +6,14 @@ import (
 
 // Config provides the configuration for the i5 server.
 type Config struct {
-	// Addr indicates the address to be used for listening.
-	Addr string
+	// Debug enables debug mode.
+	Debug bool
+	// Email provides the address to provide with challenges.
+	Email string
+	// HTTPAddr indicates the address to use for HTTP connections.
+	HTTPAddr string
+	// HTTPSAddr indicates the address to use for HTTPS connections.
+	HTTPSAddr string
 	// Dockmon is a pointer to a Dockmon instance.
 	Dockmon *dockmon.Dockmon
 }
