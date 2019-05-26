@@ -20,11 +20,11 @@ func (s StringMap) Has(k string) bool {
 }
 
 // Difference returns a list of keys that are in this map but not another.
-func (s StringMap) Difference(other StringMap) []string {
-	diff := []string{}
-	for k := range s {
+func (s StringMap) Difference(other StringMap) StringMap {
+	diff := StringMap{}
+	for k, v := range s {
 		if !other.Has(k) {
-			diff = append(diff, k)
+			diff[k] = v
 		}
 	}
 	return diff
