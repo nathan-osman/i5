@@ -1,4 +1,4 @@
-package dockmon
+package util
 
 // StringMap provides a convenient interface for a map that uses strings for keys and stores interface{} values.
 type StringMap map[string]interface{}

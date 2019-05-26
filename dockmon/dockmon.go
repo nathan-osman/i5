@@ -8,6 +8,7 @@ import (
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/client"
 	"github.com/nathan-osman/i5/service"
+	"github.com/nathan-osman/i5/util"
 	"github.com/sirupsen/logrus"
 )
 
@@ -29,7 +30,7 @@ func init() {
 type Dockmon struct {
 	log            *logrus.Entry
 	client         *client.Client
-	svcMap         StringMap
+	svcMap         util.StringMap
 	svcStartedChan chan *service.Service
 	svcStoppedChan chan *service.Service
 	closeFunc      context.CancelFunc
@@ -53,7 +54,7 @@ func (d *Dockmon) sync(ctx context.Context) error {
 		return err
 	}
 	// Create a StringMap of the containers
-	containerMap := StringMap{}
+	containerMap := util.StringMap{}
 	for _, container := range containers {
 		containerMap.Insert(container.ID, nil)
 	}
@@ -130,7 +131,7 @@ func New(cfg *Config) (*Dockmon, error) {
 		d               = &Dockmon{
 			log:            logrus.WithField("context", "dockmon"),
 			client:         c,
-			svcMap:         StringMap{},
+			svcMap:         util.StringMap{},
 			svcStartedChan: make(chan *service.Service),
 			svcStoppedChan: make(chan *service.Service),
 			closeFunc:      cancelFunc,

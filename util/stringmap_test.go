@@ -1,4 +1,4 @@
-package dockmon
+package util
 
 import (
 	"reflect"
