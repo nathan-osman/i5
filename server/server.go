@@ -10,7 +10,6 @@ import (
 
 	"github.com/mholt/certmagic"
 	"github.com/nathan-osman/i5/dockmon"
-	"github.com/nathan-osman/i5/service"
 	"github.com/nathan-osman/i5/util"
 	"github.com/sirupsen/logrus"
 )
@@ -39,26 +38,32 @@ func (s *Server) decide(name string) error {
 	return nil
 }
 
+func (s *Server) handle(w http.ResponseWriter, r *http.Request) {
+	http.Error(w, http.StatusText(http.StatusOK), http.StatusOK)
+}
+
 func (s *Server) handleHTTP(w http.ResponseWriter, r *http.Request) {
-	//...
+	s.handle(w, r)
 }
 
 func (s *Server) handleHTTPS(w http.ResponseWriter, r *http.Request) {
-	//...
+	s.handle(w, r)
 }
 
-func (s *Server) add(svc *service.Service) {
+func (s *Server) add(con *dockmon.Container) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
-	for _, domain := range svc.Domains {
-		s.domainMap.Insert(domain, svc)
+	for _, domain := range con.Domains {
+		s.log.Debugf("added %s", domain)
+		s.domainMap.Insert(domain, con)
 	}
 }
 
-func (s *Server) remove(svc *service.Service) {
+func (s *Server) remove(con *dockmon.Container) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
-	for _, domain := range svc.Domains {
+	for _, domain := range con.Domains {
+		s.log.Debugf("removed %s", domain)
 		s.domainMap.Remove(domain)
 	}
 }
@@ -67,13 +72,13 @@ func (s *Server) run() {
 	defer close(s.closedChan)
 	defer s.log.Info("server stopped")
 	s.log.Info("server started")
-	svcStartedChan, svcStoppedChan := s.dockmon.Monitor()
+	conStartedChan, conStoppedChan := s.dockmon.Monitor()
 	for {
 		select {
-		case svc := <-svcStartedChan:
-			s.add(svc)
-		case svc := <-svcStoppedChan:
-			s.remove(svc)
+		case con := <-conStartedChan:
+			s.add(con)
+		case con := <-conStoppedChan:
+			s.remove(con)
 		case <-s.closeChan:
 			return
 		}
@@ -102,7 +107,7 @@ func New(cfg *Config) (*Server, error) {
 	if cfg.Debug {
 		s.cfg.CA = certmagic.LetsEncryptStagingCA
 	}
-	s.httpServer.Handler = http.HandlerFunc(s.handleHTTP)
+	s.httpServer.Handler = s.cfg.HTTPChallengeHandler(http.HandlerFunc(s.handleHTTP))
 	s.httpsServer.Handler = http.HandlerFunc(s.handleHTTPS)
 	// Create the HTTP listener
 	httpLn, err := net.Listen("tcp", cfg.HTTPAddr)

@@ -1,4 +1,4 @@
-package service
+package dockmon
 
 import (
 	"context"
@@ -20,36 +20,36 @@ var (
 	errMissingDomains = errors.New("missing domains label")
 )
 
-// Service represents configuration for an application running within a Docker container. The configuration is generated from the container's labels.
-type Service struct {
-	// ID is the service's unique identifier.
+// Container represents configuration for an application running within a Docker container. The configuration is generated from the container's labels.
+type Container struct {
+	// ID is the container's unique identifier.
 	ID string
-	// Name is the service's name.
+	// Name is the container's name.
 	Name string
-	// Addr is the address of the service's HTTP server.
+	// Addr is the address of the container's HTTP server.
 	Addr string
-	// Domains provides a list of domain names for the service.
+	// Domains provides a list of domain names for the container.
 	Domains []string
 	// Insecure indicates that non-TLS traffic should not be upgraded.
 	Insecure bool
 }
 
-func (s *Service) parseLabels(labels map[string]string) error {
+func (c *Container) parseLabels(labels map[string]string) error {
 	if addr, ok := labels[labelAddr]; ok {
-		s.Addr = addr
+		c.Addr = addr
 	} else {
 		return errMissingAddress
 	}
 	if domains, ok := labels[labelDomains]; ok {
 		for _, domain := range strings.Split(domains, ",") {
-			s.Domains = append(s.Domains, strings.TrimSpace(domain))
+			c.Domains = append(c.Domains, strings.TrimSpace(domain))
 		}
 	} else {
 		return errMissingDomains
 	}
 	if insecureStr, ok := labels[labelInsecure]; ok {
 		if insecure, err := strconv.ParseBool(insecureStr); err == nil {
-			s.Insecure = insecure
+			c.Insecure = insecure
 		} else {
 			return err
 		}
@@ -57,22 +57,22 @@ func (s *Service) parseLabels(labels map[string]string) error {
 	return nil
 }
 
-// New creates a new Service from the provided data.
-func New(id, name string, labels map[string]string) (*Service, error) {
-	s := &Service{
+// New creates a new Container from the provided data.
+func NewContainer(id, name string, labels map[string]string) (*Container, error) {
+	c := &Container{
 		ID:   id,
 		Name: name,
 	}
-	if err := s.parseLabels(labels); err != nil {
+	if err := c.parseLabels(labels); err != nil {
 		return nil, err
 	}
-	return s, nil
+	return c, nil
 }
 
-// NewFromContainer creates a new Service from the specified container.
-func NewFromContainer(ctx context.Context, client *client.Client, id string) (*Service, error) {
+// NewContainerFromClient creates a new Container using the provided client.
+func NewContainerFromClient(ctx context.Context, client *client.Client, id string) (*Container, error) {
 	if containerJSON, err := client.ContainerInspect(ctx, id); err == nil {
-		return New(
+		return NewContainer(
 			containerJSON.ID,
 			containerJSON.Name[1:],
 			containerJSON.Config.Labels,

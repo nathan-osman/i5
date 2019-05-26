@@ -7,7 +7,6 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/client"
-	"github.com/nathan-osman/i5/service"
 	"github.com/nathan-osman/i5/util"
 	"github.com/sirupsen/logrus"
 )
@@ -30,20 +29,20 @@ func init() {
 type Dockmon struct {
 	log            *logrus.Entry
 	client         *client.Client
-	svcMap         util.StringMap
-	svcStartedChan chan *service.Service
-	svcStoppedChan chan *service.Service
+	conMap         util.StringMap
+	conStartedChan chan *Container
+	conStoppedChan chan *Container
 	closeFunc      context.CancelFunc
 	closedChan     chan bool
 }
 
 func (d *Dockmon) add(ctx context.Context, id string) error {
-	s, err := service.NewFromContainer(ctx, d.client, id)
+	s, err := NewContainerFromClient(ctx, d.client, id)
 	if err != nil {
 		return err
 	}
-	d.svcMap.Insert(id, s)
-	d.svcStartedChan <- s
+	d.conMap.Insert(id, s)
+	d.conStartedChan <- s
 	return nil
 }
 
@@ -54,20 +53,20 @@ func (d *Dockmon) sync(ctx context.Context) error {
 		return err
 	}
 	// Create a StringMap of the containers
-	containerMap := util.StringMap{}
-	for _, container := range containers {
-		containerMap.Insert(container.ID, nil)
+	conMap := util.StringMap{}
+	for _, con := range containers {
+		conMap.Insert(con.ID, nil)
 	}
 	// Add the containers that we don't know were started
-	for containerID := range containerMap.Difference(d.svcMap) {
-		if err := d.add(ctx, containerID); err != nil {
+	for conID := range conMap.Difference(d.conMap) {
+		if err := d.add(ctx, conID); err != nil {
 			return err
 		}
 	}
 	// Remove the containers that we don't know were stopped
-	for containerID, s := range d.svcMap.Difference(containerMap) {
-		d.svcMap.Remove(containerID)
-		d.svcStoppedChan <- s.(*service.Service)
+	for containerID, s := range d.conMap.Difference(conMap) {
+		d.conMap.Remove(containerID)
+		d.conStoppedChan <- s.(*Container)
 	}
 	return nil
 }
@@ -88,9 +87,9 @@ func (d *Dockmon) loop(ctx context.Context) error {
 					return err
 				}
 			case actionDie:
-				if s, ok := d.svcMap[msg.ID]; ok {
-					d.svcMap.Remove(msg.ID)
-					d.svcStoppedChan <- s.(*service.Service)
+				if s, ok := d.conMap[msg.ID]; ok {
+					d.conMap.Remove(msg.ID)
+					d.conStoppedChan <- s.(*Container)
 				}
 			}
 		case err := <-errChan:
@@ -101,8 +100,8 @@ func (d *Dockmon) loop(ctx context.Context) error {
 
 func (d *Dockmon) run(ctx context.Context) {
 	defer close(d.closedChan)
-	defer close(d.svcStoppedChan)
-	defer close(d.svcStartedChan)
+	defer close(d.conStoppedChan)
+	defer close(d.conStartedChan)
 	defer d.log.Info("Docker monitor stopped")
 	d.log.Info("Docker monitor started")
 	for {
@@ -131,9 +130,9 @@ func New(cfg *Config) (*Dockmon, error) {
 		d               = &Dockmon{
 			log:            logrus.WithField("context", "dockmon"),
 			client:         c,
-			svcMap:         util.StringMap{},
-			svcStartedChan: make(chan *service.Service),
-			svcStoppedChan: make(chan *service.Service),
+			conMap:         util.StringMap{},
+			conStartedChan: make(chan *Container),
+			conStoppedChan: make(chan *Container),
 			closeFunc:      cancelFunc,
 			closedChan:     make(chan bool),
 		}
@@ -142,9 +141,9 @@ func New(cfg *Config) (*Dockmon, error) {
 	return d, nil
 }
 
-// Monitor returns channels that send when services are started and stopped.
-func (d *Dockmon) Monitor() (<-chan *service.Service, <-chan *service.Service) {
-	return d.svcStartedChan, d.svcStoppedChan
+// Monitor returns channels that send when containers are started and stopped.
+func (d *Dockmon) Monitor() (<-chan *Container, <-chan *Container) {
+	return d.conStartedChan, d.conStoppedChan
 }
 
 // Close shuts down the connection to the Docker daemon.
