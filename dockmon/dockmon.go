@@ -141,6 +141,11 @@ func New(cfg *Config) (*Dockmon, error) {
 	return d, nil
 }
 
+// Monitor returns channels that send when services are started and stopped.
+func (d *Dockmon) Monitor() (<-chan *service.Service, <-chan *service.Service) {
+	return d.svcStartedChan, d.svcStoppedChan
+}
+
 // Close shuts down the connection to the Docker daemon.
 func (d *Dockmon) Close() {
 	d.closeFunc()
