@@ -8,6 +8,7 @@ import (
 
 	"github.com/nathan-osman/i5/dockmon"
 	"github.com/nathan-osman/i5/server"
+	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 )
 
@@ -46,6 +47,11 @@ func main() {
 		},
 	}
 	app.Action = func(c *cli.Context) error {
+
+		// Enable debug logging if requested
+		if c.Bool("debug") {
+			logrus.SetLevel(logrus.DebugLevel)
+		}
 
 		// Create the Docker monitor
 		dm, err := dockmon.New(&dockmon.Config{
