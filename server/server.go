@@ -32,6 +32,14 @@ type Server struct {
 	closedChan  chan bool
 }
 
+func parsePort(addr string) (int, error) {
+	if _, port, err := net.SplitHostPort(addr); err == nil {
+		return net.LookupPort("tcp", port)
+	} else {
+		return 0, err
+	}
+}
+
 func (s *Server) lookup(name string) (*dockmon.Container, error) {
 	host, _, err := net.SplitHostPort(name)
 	if err != nil {
@@ -134,7 +142,7 @@ func New(cfg *Config) (*Server, error) {
 		closeChan:   make(chan bool),
 		closedChan:  make(chan bool),
 	}
-	// Finish initializing the server
+	// Set certmagic defaults
 	s.cfg = certmagic.NewDefault()
 	s.cfg.Agreed = true
 	s.cfg.Email = cfg.Email
@@ -143,6 +151,11 @@ func New(cfg *Config) (*Server, error) {
 	}
 	if cfg.Debug {
 		s.cfg.CA = certmagic.LetsEncryptStagingCA
+	}
+	if port, err := parsePort(cfg.HTTPAddr); err == nil {
+		s.cfg.AltHTTPPort = port
+	} else {
+		return nil, err
 	}
 	s.httpServer.Handler = s.cfg.HTTPChallengeHandler(http.HandlerFunc(s.handleHTTP))
 	s.httpsServer.Handler = http.HandlerFunc(s.handleHTTPS)
