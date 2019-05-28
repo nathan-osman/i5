@@ -36,14 +36,11 @@ type Dockmon struct {
 	closedChan     chan bool
 }
 
-func (d *Dockmon) add(ctx context.Context, id string) error {
-	s, err := NewContainerFromClient(ctx, d.client, id)
-	if err != nil {
-		return err
+func (d *Dockmon) add(ctx context.Context, id string) {
+	if s, err := NewContainerFromClient(ctx, d.client, id); err == nil {
+		d.conMap.Insert(id, s)
+		d.conStartedChan <- s
 	}
-	d.conMap.Insert(id, s)
-	d.conStartedChan <- s
-	return nil
 }
 
 func (d *Dockmon) sync(ctx context.Context) error {
@@ -59,9 +56,7 @@ func (d *Dockmon) sync(ctx context.Context) error {
 	}
 	// Add the containers that we don't know were started
 	for conID := range conMap.Difference(d.conMap) {
-		if err := d.add(ctx, conID); err != nil {
-			return err
-		}
+		d.add(ctx, conID)
 	}
 	// Remove the containers that we don't know were stopped
 	for containerID, s := range d.conMap.Difference(conMap) {
@@ -72,20 +67,18 @@ func (d *Dockmon) sync(ctx context.Context) error {
 }
 
 func (d *Dockmon) loop(ctx context.Context) error {
-	// Sync with the daemon's list of running containers
+	// Watch for container start / stop events
+	msgChan, errChan := d.client.Events(ctx, evtOptions)
+	// ...but first sync with the daemon's list of running containers
 	if err := d.sync(ctx); err != nil {
 		return err
 	}
-	// Watch for container start / stop events
-	msgChan, errChan := d.client.Events(ctx, evtOptions)
 	for {
 		select {
 		case msg := <-msgChan:
 			switch msg.Action {
 			case actionStart:
-				if err := d.add(ctx, msg.ID); err != nil {
-					return err
-				}
+				d.add(ctx, msg.ID)
 			case actionDie:
 				if s, ok := d.conMap[msg.ID]; ok {
 					d.conMap.Remove(msg.ID)
