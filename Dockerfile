@@ -12,6 +12,6 @@ RUN go build
 
 FROM scratch
 
-COPY --from=0 /src/i5 /usr/local/bin
+COPY --from=0 /src/i5 /usr/local/bin/
 
 ENTRYPOINT ["/usr/local/bin/i5"]
