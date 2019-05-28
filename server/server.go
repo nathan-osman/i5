@@ -33,9 +33,13 @@ type Server struct {
 }
 
 func (s *Server) lookup(name string) (*dockmon.Container, error) {
+	host, _, err := net.SplitHostPort(name)
+	if err != nil {
+		return nil, err
+	}
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
-	if v, ok := s.domainMap[name]; ok {
+	if v, ok := s.domainMap[host]; ok {
 		return v.(*dockmon.Container), nil
 	} else {
 		return nil, errInvalidDomain
