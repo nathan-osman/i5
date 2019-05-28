@@ -4,8 +4,11 @@ import (
 	"context"
 	"crypto/tls"
 	"errors"
+	"fmt"
 	"net"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 	"sync"
 
 	"github.com/mholt/certmagic"
@@ -29,25 +32,55 @@ type Server struct {
 	closedChan  chan bool
 }
 
-func (s *Server) decide(name string) error {
+func (s *Server) lookup(name string) (*dockmon.Container, error) {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
-	if !s.domainMap.Has(name) {
-		return errInvalidDomain
+	if v, ok := s.domainMap[name]; ok {
+		return v.(*dockmon.Container), nil
+	} else {
+		return nil, errInvalidDomain
 	}
-	return nil
 }
 
-func (s *Server) handle(w http.ResponseWriter, r *http.Request) {
-	http.Error(w, http.StatusText(http.StatusOK), http.StatusOK)
+func (s *Server) decide(name string) error {
+	_, err := s.lookup(name)
+	return err
+}
+
+func (s *Server) handle(w http.ResponseWriter, r *http.Request, con *dockmon.Container) {
+	(&httputil.ReverseProxy{
+		Director: func(inReq *http.Request) {
+			inReq.Host = r.Host
+			inReq.URL = &url.URL{
+				Scheme: "http",
+				Host:   con.Addr,
+			}
+		},
+	}).ServeHTTP(w, r)
 }
 
 func (s *Server) handleHTTP(w http.ResponseWriter, r *http.Request) {
-	s.handle(w, r)
+	if con, err := s.lookup(r.Host); err == nil {
+		if con.Insecure {
+			s.handle(w, r, con)
+		} else {
+			http.Redirect(
+				w, r,
+				fmt.Sprintf("https://%s%s", r.Host, r.URL.Path),
+				http.StatusMovedPermanently,
+			)
+		}
+	} else {
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+	}
 }
 
 func (s *Server) handleHTTPS(w http.ResponseWriter, r *http.Request) {
-	s.handle(w, r)
+	if con, err := s.lookup(r.Host); err == nil {
+		s.handle(w, r, con)
+	} else {
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+	}
 }
 
 func (s *Server) add(con *dockmon.Container) {
