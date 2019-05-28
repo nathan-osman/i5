@@ -157,6 +157,9 @@ func New(cfg *Config) (*Server, error) {
 	} else {
 		return nil, err
 	}
+	if len(cfg.StorageDir) != 0 {
+		s.cfg.Storage = &certmagic.FileStorage{Path: cfg.StorageDir}
+	}
 	s.httpServer.Handler = s.cfg.HTTPChallengeHandler(http.HandlerFunc(s.handleHTTP))
 	s.httpsServer.Handler = http.HandlerFunc(s.handleHTTPS)
 	// Create the HTTP listener

@@ -45,6 +45,11 @@ func main() {
 			EnvVar: "HTTPS_ADDR",
 			Usage:  "HTTPS address to listen on",
 		},
+		cli.StringFlag{
+			Name:   "storage-dir",
+			EnvVar: "STORAGE_DIR",
+			Usage:  "directory for storing certificates",
+		},
 	}
 	app.Action = func(c *cli.Context) error {
 
@@ -64,11 +69,12 @@ func main() {
 
 		// Create the server
 		sv, err := server.New(&server.Config{
-			Debug:     c.Bool("debug"),
-			Email:     c.String("email"),
-			HTTPAddr:  c.String("http-addr"),
-			HTTPSAddr: c.String("https-addr"),
-			Dockmon:   dm,
+			Debug:      c.Bool("debug"),
+			Email:      c.String("email"),
+			HTTPAddr:   c.String("http-addr"),
+			HTTPSAddr:  c.String("https-addr"),
+			StorageDir: c.String("storage-dir"),
+			Dockmon:    dm,
 		})
 		if err != nil {
 			return err

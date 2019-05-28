@@ -14,6 +14,8 @@ type Config struct {
 	HTTPAddr string
 	// HTTPSAddr indicates the address to use for HTTPS connections.
 	HTTPSAddr string
+	// StorageDir indicates where certificates should be stored
+	StorageDir string
 	// Dockmon is a pointer to a Dockmon instance.
 	Dockmon *dockmon.Dockmon
 }
