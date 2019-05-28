@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"strings"
 	"sync"
 
 	"github.com/mholt/certmagic"
@@ -41,13 +42,9 @@ func parsePort(addr string) (int, error) {
 }
 
 func (s *Server) lookup(name string) (*dockmon.Container, error) {
-	host, _, err := net.SplitHostPort(name)
-	if err != nil {
-		return nil, err
-	}
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
-	if v, ok := s.domainMap[host]; ok {
+	if v, ok := s.domainMap[strings.Split(name, ":")[0]]; ok {
 		return v.(*dockmon.Container), nil
 	} else {
 		return nil, errInvalidDomain
