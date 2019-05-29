@@ -9,13 +9,19 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"strings"
 	"sync"
 
 	"github.com/mholt/certmagic"
 	"github.com/nathan-osman/i5/dockmon"
 	"github.com/nathan-osman/i5/util"
 	"github.com/sirupsen/logrus"
+)
+
+const (
+	// DefaultHTTPPort is the port used for HTTP traffic.
+	DefaultHTTPPort = 80
+	// DefaultHTTPPort is the port used for HTTPS traffic.
+	DefaultHTTPSPort = 443
 )
 
 var errInvalidDomain = errors.New("invalid domain name")
@@ -33,18 +39,10 @@ type Server struct {
 	closedChan  chan bool
 }
 
-func parsePort(addr string) (int, error) {
-	if _, port, err := net.SplitHostPort(addr); err == nil {
-		return net.LookupPort("tcp", port)
-	} else {
-		return 0, err
-	}
-}
-
 func (s *Server) lookup(name string) (*dockmon.Container, error) {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
-	if v, ok := s.domainMap[strings.Split(name, ":")[0]]; ok {
+	if v, ok := s.domainMap[name]; ok {
 		return v.(*dockmon.Container), nil
 	} else {
 		return nil, errInvalidDomain
@@ -71,7 +69,7 @@ func (s *Server) handle(w http.ResponseWriter, r *http.Request, con *dockmon.Con
 }
 
 func (s *Server) handleHTTP(w http.ResponseWriter, r *http.Request) {
-	if con, err := s.lookup(r.Host); err == nil {
+	if con, err := s.lookup(util.ParseHost(r.Host)); err == nil {
 		if con.Insecure {
 			s.handle(w, r, con)
 		} else {
@@ -151,8 +149,13 @@ func New(cfg *Config) (*Server, error) {
 	if cfg.Debug {
 		s.cfg.CA = certmagic.LetsEncryptStagingCA
 	}
-	if port, err := parsePort(cfg.HTTPAddr); err == nil {
+	if port, err := util.ParsePort(cfg.HTTPAddr, DefaultHTTPPort); err == nil {
 		s.cfg.AltHTTPPort = port
+	} else {
+		return nil, err
+	}
+	if port, err := util.ParsePort(cfg.HTTPSAddr, DefaultHTTPSPort); err == nil {
+		s.cfg.AltTLSALPNPort = port
 	} else {
 		return nil, err
 	}
