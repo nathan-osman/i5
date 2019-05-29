@@ -61,8 +61,10 @@ func (s *Server) handle(w http.ResponseWriter, r *http.Request, con *dockmon.Con
 		Director: func(inReq *http.Request) {
 			inReq.Host = r.Host
 			inReq.URL = &url.URL{
-				Scheme: "http",
-				Host:   con.Addr,
+				Scheme:   "http",
+				Host:     con.Addr,
+				Path:     r.URL.Path,
+				RawQuery: r.URL.RawQuery,
 			}
 		},
 	}).ServeHTTP(w, r)
