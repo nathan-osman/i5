@@ -4,6 +4,20 @@ import (
 	"testing"
 )
 
+func TestParseHost(t *testing.T) {
+	for _, tt := range []struct {
+		Addr string
+		Host string
+	}{
+		{Addr: ":"},
+		{Addr: "host:", Host: "host"},
+	} {
+		if host := ParseHost(tt.Addr); host != tt.Host {
+			t.Fatalf("%s != %s", host, tt.Host)
+		}
+	}
+}
+
 func TestParsePort(t *testing.T) {
 	for _, tt := range []struct {
 		Addr  string
