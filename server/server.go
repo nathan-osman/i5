@@ -42,7 +42,7 @@ type Server struct {
 func (s *Server) lookup(name string) (*dockmon.Container, error) {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
-	if v, ok := s.domainMap[name]; ok {
+	if v, ok := s.domainMap[util.ParseHost(name)]; ok {
 		return v.(*dockmon.Container), nil
 	} else {
 		return nil, errInvalidDomain
@@ -69,7 +69,7 @@ func (s *Server) handle(w http.ResponseWriter, r *http.Request, con *dockmon.Con
 }
 
 func (s *Server) handleHTTP(w http.ResponseWriter, r *http.Request) {
-	if con, err := s.lookup(util.ParseHost(r.Host)); err == nil {
+	if con, err := s.lookup(r.Host); err == nil {
 		if con.Insecure {
 			s.handle(w, r, con)
 		} else {
