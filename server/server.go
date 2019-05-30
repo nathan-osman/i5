@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/tls"
 	"errors"
-	"fmt"
 	"net"
 	"net/http"
 	"net/http/httputil"
@@ -15,13 +14,6 @@ import (
 	"github.com/nathan-osman/i5/dockmon"
 	"github.com/nathan-osman/i5/util"
 	"github.com/sirupsen/logrus"
-)
-
-const (
-	// DefaultHTTPPort is the port used for HTTP traffic.
-	DefaultHTTPPort = 80
-	// DefaultHTTPPort is the port used for HTTPS traffic.
-	DefaultHTTPSPort = 443
 )
 
 var errInvalidDomain = errors.New("invalid domain name")
@@ -42,7 +34,7 @@ type Server struct {
 func (s *Server) lookup(name string) (*dockmon.Container, error) {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
-	if v, ok := s.domainMap[util.ParseHost(name)]; ok {
+	if v, ok := s.domainMap[name]; ok {
 		return v.(*dockmon.Container), nil
 	} else {
 		return nil, errInvalidDomain
@@ -75,7 +67,12 @@ func (s *Server) handleHTTP(w http.ResponseWriter, r *http.Request) {
 		} else {
 			http.Redirect(
 				w, r,
-				fmt.Sprintf("https://%s%s", r.Host, r.URL.Path),
+				(&url.URL{
+					Scheme:   "http",
+					Host:     r.Host,
+					Path:     r.URL.Path,
+					RawQuery: r.URL.RawQuery,
+				}).String(),
 				http.StatusMovedPermanently,
 			)
 		}
@@ -129,39 +126,42 @@ func (s *Server) run() {
 
 // New creates a new server from the provided configuration.
 func New(cfg *Config) (*Server, error) {
-	// Create the server
-	var s = &Server{
-		log:         logrus.WithField("context", "server"),
-		dockmon:     cfg.Dockmon,
-		httpServer:  &http.Server{},
-		httpsServer: &http.Server{},
-		domainMap:   util.StringMap{},
-		closeChan:   make(chan bool),
-		closedChan:  make(chan bool),
-	}
-	// Set certmagic defaults
-	s.cfg = certmagic.NewDefault()
-	s.cfg.Agreed = true
-	s.cfg.Email = cfg.Email
-	s.cfg.OnDemand = &certmagic.OnDemandConfig{
-		DecisionFunc: s.decide,
-	}
+	// Create the server and certmagic config
+	var (
+		s = &Server{
+			log:         logrus.WithField("context", "server"),
+			dockmon:     cfg.Dockmon,
+			httpServer:  &http.Server{},
+			httpsServer: &http.Server{},
+			domainMap:   util.StringMap{},
+			closeChan:   make(chan bool),
+			closedChan:  make(chan bool),
+		}
+		cmCfg = certmagic.Config{
+			Agreed: true,
+			Email:  cfg.Email,
+			OnDemand: &certmagic.OnDemandConfig{
+				DecisionFunc: s.decide,
+			},
+		}
+	)
+	// Finish initializing the config (the fields cannot be set inline
 	if cfg.Debug {
-		s.cfg.CA = certmagic.LetsEncryptStagingCA
-	}
-	if port, err := util.ParsePort(cfg.HTTPAddr, DefaultHTTPPort); err == nil {
-		s.cfg.AltHTTPPort = port
-	} else {
-		return nil, err
-	}
-	if port, err := util.ParsePort(cfg.HTTPSAddr, DefaultHTTPSPort); err == nil {
-		s.cfg.AltTLSALPNPort = port
-	} else {
-		return nil, err
+		cmCfg.CA = certmagic.LetsEncryptStagingCA
 	}
 	if len(cfg.StorageDir) != 0 {
-		s.cfg.Storage = &certmagic.FileStorage{Path: cfg.StorageDir}
+		cmCfg.Storage = &certmagic.FileStorage{Path: cfg.StorageDir}
 	}
+	s.cfg = certmagic.New(
+		certmagic.NewCache(
+			certmagic.CacheOptions{
+				GetConfigForCert: func(certmagic.Certificate) (certmagic.Config, error) {
+					return certmagic.Default, nil
+				},
+			},
+		),
+		cmCfg,
+	)
 	s.httpServer.Handler = s.cfg.HTTPChallengeHandler(http.HandlerFunc(s.handleHTTP))
 	s.httpsServer.Handler = http.HandlerFunc(s.handleHTTPS)
 	// Create the HTTP listener
@@ -193,7 +193,7 @@ func New(cfg *Config) (*Server, error) {
 func (s *Server) Close() {
 	close(s.closeChan)
 	<-s.closedChan
-	s.log.Info("waiting for connections...")
+	s.log.Info("waiting for connections to close...")
 	s.httpServer.Shutdown(context.Background())
 	s.httpsServer.Shutdown(context.Background())
 }
