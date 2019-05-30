@@ -3,7 +3,7 @@ package server
 import (
 	"context"
 	"crypto/tls"
-	"errors"
+	"fmt"
 	"net"
 	"net/http"
 	"net/http/httputil"
@@ -15,8 +15,6 @@ import (
 	"github.com/nathan-osman/i5/util"
 	"github.com/sirupsen/logrus"
 )
-
-var errInvalidDomain = errors.New("invalid domain name")
 
 // Server listens for incoming connections and routes them accordingly.
 type Server struct {
@@ -37,7 +35,7 @@ func (s *Server) lookup(name string) (*dockmon.Container, error) {
 	if v, ok := s.domainMap[name]; ok {
 		return v.(*dockmon.Container), nil
 	} else {
-		return nil, errInvalidDomain
+		return nil, fmt.Errorf("invalid domain: \"%s\"", name)
 	}
 }
 
