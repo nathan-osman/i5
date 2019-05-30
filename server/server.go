@@ -68,7 +68,7 @@ func (s *Server) handleHTTP(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(
 				w, r,
 				(&url.URL{
-					Scheme:   "http",
+					Scheme:   "https",
 					Host:     r.Host,
 					Path:     r.URL.Path,
 					RawQuery: r.URL.RawQuery,
