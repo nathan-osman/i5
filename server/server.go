@@ -46,9 +46,12 @@ func (s *Server) decide(name string) error {
 	return err
 }
 
-func (s *Server) handle(w http.ResponseWriter, r *http.Request, con *dockmon.Container) {
+func (s *Server) handle(w http.ResponseWriter, r *http.Request, con *dockmon.Container, secure bool) {
 	(&httputil.ReverseProxy{
 		Director: func(inReq *http.Request) {
+			if secure {
+				inReq.Header.Set("X-Forwarded-Proto", "https")
+			}
 			inReq.Host = r.Host
 			inReq.URL = &url.URL{
 				Scheme:   "http",
@@ -63,7 +66,7 @@ func (s *Server) handle(w http.ResponseWriter, r *http.Request, con *dockmon.Con
 func (s *Server) handleHTTP(w http.ResponseWriter, r *http.Request) {
 	if con, err := s.lookup(r.Host); err == nil {
 		if con.Insecure {
-			s.handle(w, r, con)
+			s.handle(w, r, con, false)
 		} else {
 			http.Redirect(
 				w, r,
@@ -83,7 +86,7 @@ func (s *Server) handleHTTP(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) handleHTTPS(w http.ResponseWriter, r *http.Request) {
 	if con, err := s.lookup(r.Host); err == nil {
-		s.handle(w, r, con)
+		s.handle(w, r, con, true)
 	} else {
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 	}
