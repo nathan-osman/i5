@@ -50,6 +50,9 @@ func (s *Server) handle(w http.ResponseWriter, r *http.Request, con *dockmon.Con
 			if secure {
 				inReq.Header.Set("X-Forwarded-Proto", "https")
 			}
+			if host, _, err := net.SplitHostPort(r.RemoteAddr); err == nil {
+				inReq.Header.Set("X-Real-IP", host)
+			}
 			inReq.Host = r.Host
 			inReq.URL = &url.URL{
 				Scheme:   "http",
