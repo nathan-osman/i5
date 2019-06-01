@@ -9,8 +9,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// ConMan manages running containers based on Docker events.
-type ConMan struct {
+// Conman manages running containers based on Docker events.
+type Conman struct {
 	mutex          sync.RWMutex
 	log            *logrus.Entry
 	domainMap      util.StringMap
@@ -20,7 +20,7 @@ type ConMan struct {
 	closedChan     chan bool
 }
 
-func (c *ConMan) add(con *dockmon.Container) {
+func (c *Conman) add(con *dockmon.Container) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 	for _, domain := range con.Domains {
@@ -29,7 +29,7 @@ func (c *ConMan) add(con *dockmon.Container) {
 	}
 }
 
-func (c *ConMan) remove(con *dockmon.Container) {
+func (c *Conman) remove(con *dockmon.Container) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 	for _, domain := range con.Domains {
@@ -38,7 +38,7 @@ func (c *ConMan) remove(con *dockmon.Container) {
 	}
 }
 
-func (c *ConMan) run() {
+func (c *Conman) run() {
 	defer close(c.closedChan)
 	defer c.log.Info("service manager stopped")
 	c.log.Info("service manager started")
@@ -55,8 +55,8 @@ func (c *ConMan) run() {
 }
 
 // New creates a new container manager.
-func New(cfg *Config) *ConMan {
-	c := &ConMan{
+func New(cfg *Config) *Conman {
+	c := &Conman{
 		log:            logrus.WithField("context", "conman"),
 		domainMap:      util.StringMap{},
 		conStartedChan: cfg.ConStartedChan,
@@ -69,7 +69,7 @@ func New(cfg *Config) *ConMan {
 }
 
 // Lookup attempts to retrieve the container for the provided domain name.
-func (c *ConMan) Lookup(name string) (*dockmon.Container, error) {
+func (c *Conman) Lookup(name string) (*dockmon.Container, error) {
 	c.mutex.RLock()
 	defer c.mutex.RUnlock()
 	if v, ok := c.domainMap[name]; ok {
@@ -80,7 +80,7 @@ func (c *ConMan) Lookup(name string) (*dockmon.Container, error) {
 }
 
 // Close shuts down the container manager.
-func (c *ConMan) Close() {
+func (c *Conman) Close() {
 	close(c.closeChan)
 	<-c.closedChan
 }

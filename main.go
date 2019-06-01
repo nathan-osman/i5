@@ -6,6 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/nathan-osman/i5/conman"
 	"github.com/nathan-osman/i5/dockmon"
 	"github.com/nathan-osman/i5/server"
 	"github.com/sirupsen/logrus"
@@ -67,6 +68,13 @@ func main() {
 		}
 		defer dm.Close()
 
+		// Create the container manager
+		cm := conman.New(&conman.Config{
+			ConStartedChan: dm.ConStartedChan,
+			ConStoppedChan: dm.ConStoppedChan,
+		})
+		defer cm.Close()
+
 		// Create the server
 		sv, err := server.New(&server.Config{
 			Debug:      c.Bool("debug"),
@@ -74,7 +82,7 @@ func main() {
 			HTTPAddr:   c.String("http-addr"),
 			HTTPSAddr:  c.String("https-addr"),
 			StorageDir: c.String("storage-dir"),
-			Dockmon:    dm,
+			Conman:     cm,
 		})
 		if err != nil {
 			return err

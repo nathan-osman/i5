@@ -27,6 +27,8 @@ func init() {
 
 // Dockmon manages a connection to the Docker daemon and delivers events as containers are started and stopped. A list of running containers is also kept.
 type Dockmon struct {
+	ConStartedChan <-chan *Container
+	ConStoppedChan <-chan *Container
 	log            *logrus.Entry
 	client         *client.Client
 	conMap         util.StringMap
@@ -44,32 +46,36 @@ func (d *Dockmon) add(ctx context.Context, id string) {
 }
 
 func (d *Dockmon) sync(ctx context.Context) error {
+
+	// Fetch the list of running containers
 	d.log.Info("performing sync...")
 	containers, err := d.client.ContainerList(ctx, types.ContainerListOptions{})
 	if err != nil {
 		return err
 	}
+
 	// Create a StringMap of the containers
 	conMap := util.StringMap{}
 	for _, con := range containers {
 		conMap.Insert(con.ID, nil)
 	}
+
 	// Add the containers that we don't know were started
 	for conID := range conMap.Difference(d.conMap) {
 		d.add(ctx, conID)
 	}
+
 	// Remove the containers that we don't know were stopped
 	for containerID, s := range d.conMap.Difference(conMap) {
 		d.conMap.Remove(containerID)
 		d.conStoppedChan <- s.(*Container)
 	}
+
 	return nil
 }
 
 func (d *Dockmon) loop(ctx context.Context) error {
-	// Watch for container start / stop events
 	msgChan, errChan := d.client.Events(ctx, evtOptions)
-	// ...but first sync with the daemon's list of running containers
 	if err := d.sync(ctx); err != nil {
 		return err
 	}
@@ -120,23 +126,22 @@ func New(cfg *Config) (*Dockmon, error) {
 	}
 	var (
 		ctx, cancelFunc = context.WithCancel(context.Background())
+		conStartedChan  = make(chan *Container)
+		conStoppedChan  = make(chan *Container)
 		d               = &Dockmon{
+			ConStartedChan: conStartedChan,
+			ConStoppedChan: conStoppedChan,
 			log:            logrus.WithField("context", "dockmon"),
 			client:         c,
 			conMap:         util.StringMap{},
-			conStartedChan: make(chan *Container),
-			conStoppedChan: make(chan *Container),
+			conStartedChan: conStartedChan,
+			conStoppedChan: conStoppedChan,
 			closeFunc:      cancelFunc,
 			closedChan:     make(chan bool),
 		}
 	)
 	go d.run(ctx)
 	return d, nil
-}
-
-// Monitor returns channels that send when containers are started and stopped.
-func (d *Dockmon) Monitor() (<-chan *Container, <-chan *Container) {
-	return d.conStartedChan, d.conStoppedChan
 }
 
 // Close shuts down the connection to the Docker daemon.

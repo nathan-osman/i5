@@ -1,7 +1,7 @@
 package server
 
 import (
-	"github.com/nathan-osman/i5/dockmon"
+	"github.com/nathan-osman/i5/conman"
 )
 
 // Config provides the configuration for the i5 server.
@@ -16,6 +16,6 @@ type Config struct {
 	HTTPSAddr string
 	// StorageDir indicates where certificates should be stored
 	StorageDir string
-	// Dockmon is a pointer to a Dockmon instance.
-	Dockmon *dockmon.Dockmon
+	// Conman is a pointer to a Conman instance.
+	Conman *conman.Conman
 }
