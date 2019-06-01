@@ -61,6 +61,9 @@ func (s *Server) handle(w http.ResponseWriter, r *http.Request, con *dockmon.Con
 				RawQuery: r.URL.RawQuery,
 			}
 		},
+		ErrorHandler: func(w http.ResponseWriter, r *http.Request, err error) {
+			renderErrorTemplate(w, r, http.StatusBadGateway)
+		},
 	}).ServeHTTP(w, r)
 }
 
