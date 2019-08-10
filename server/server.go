@@ -45,6 +45,10 @@ func (s *Server) handle(w http.ResponseWriter, r *http.Request, con *dockmon.Con
 				RawQuery: r.URL.RawQuery,
 			}
 		},
+		ModifyResponse: func(resp *http.Response) error {
+			resp.Header.Set("X-Powered-By", "i5 - qms.li/i5")
+			return nil
+		},
 		ErrorHandler: func(w http.ResponseWriter, r *http.Request, err error) {
 			renderErrorTemplate(w, r, http.StatusBadGateway)
 		},
