@@ -64,11 +64,13 @@ func New(cfg *Config) *Proxy {
 		addr:   cfg.Addr,
 		router: mux.NewRouter(),
 	}
-	p.router.PathPrefix("/").HandlerFunc(p.handle)
 	for _, m := range cfg.Mountpoints {
 		p.router.PathPrefix(m.Path).Handler(
 			http.FileServer(http.Dir(m.Dir)),
 		)
+	}
+	if p.addr != "" {
+		p.router.PathPrefix("/").HandlerFunc(p.handle)
 	}
 	return p
 }

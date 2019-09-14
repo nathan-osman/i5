@@ -18,9 +18,9 @@ const (
 )
 
 var (
-	errMissingAddress    = errors.New("missing address label")
-	errMissingDomains    = errors.New("missing domains label")
-	errInvalidMountpoint = errors.New("invalid mountpoint")
+	errMissingDomains           = errors.New("missing domains label")
+	errInvalidMountpoint        = errors.New("invalid mountpoint")
+	errMissingAddrOrMountpoints = errors.New("missing addr or mountpoints")
 )
 
 // Container represents configuration for an application running within a Docker container. The configuration is generated from the container's labels.
@@ -48,8 +48,6 @@ func NewContainer(id, name string, labels map[string]string) (*Container, error)
 	)
 	if addr, ok := labels[labelAddr]; ok {
 		cfg.Addr = addr
-	} else {
-		return nil, errMissingAddress
 	}
 	if domains, ok := labels[labelDomains]; ok {
 		for _, domain := range strings.Split(domains, ",") {
@@ -76,6 +74,9 @@ func NewContainer(id, name string, labels map[string]string) (*Container, error)
 				return nil, errInvalidMountpoint
 			}
 		}
+	}
+	if cfg.Addr == "" && cfg.Mountpoints == nil {
+		return nil, errMissingAddrOrMountpoints
 	}
 	c.Proxy = proxy.New(cfg)
 	return c, nil
