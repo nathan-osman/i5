@@ -20,24 +20,6 @@ type Conman struct {
 	closedChan     chan bool
 }
 
-func (c *Conman) add(con *dockmon.Container) {
-	c.mutex.Lock()
-	defer c.mutex.Unlock()
-	for _, domain := range con.Domains {
-		c.log.Debugf("added %s", domain)
-		c.domainMap.Insert(domain, con)
-	}
-}
-
-func (c *Conman) remove(con *dockmon.Container) {
-	c.mutex.Lock()
-	defer c.mutex.Unlock()
-	for _, domain := range con.Domains {
-		c.log.Debugf("removed %s", domain)
-		c.domainMap.Remove(domain)
-	}
-}
-
 func (c *Conman) run() {
 	defer close(c.closedChan)
 	defer c.log.Info("service manager stopped")
@@ -45,9 +27,9 @@ func (c *Conman) run() {
 	for {
 		select {
 		case con := <-c.conStartedChan:
-			c.add(con)
+			c.Add(con)
 		case con := <-c.conStoppedChan:
-			c.remove(con)
+			c.Remove(con)
 		case <-c.closeChan:
 			return
 		}
@@ -66,6 +48,24 @@ func New(cfg *Config) *Conman {
 	}
 	go c.run()
 	return c
+}
+
+func (c *Conman) Add(con *dockmon.Container) {
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
+	for _, domain := range con.Domains {
+		c.log.Debugf("added %s", domain)
+		c.domainMap.Insert(domain, con)
+	}
+}
+
+func (c *Conman) Remove(con *dockmon.Container) {
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
+	for _, domain := range con.Domains {
+		c.log.Debugf("removed %s", domain)
+		c.domainMap.Remove(domain)
+	}
 }
 
 // Lookup attempts to retrieve the container for the provided domain name.
