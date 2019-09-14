@@ -11,5 +11,6 @@ i5 is a reverse proxy for web services running in Docker.
 - Monitors the Docker daemon for containers starting and stopping
 - Routes traffic to running containers based on labels
 - Serves static files directly
+- Provides status pages for monitoring services
 - Automatically obtains TLS certificates and redirects HTTP traffic
 - Runs within its own Docker container and requires very little configuration
