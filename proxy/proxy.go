@@ -64,7 +64,7 @@ func New(cfg *Config) *Proxy {
 		addr:   cfg.Addr,
 		router: mux.NewRouter(),
 	}
-	p.router.HandleFunc("/", p.handle)
+	p.router.PathPrefix("/").HandlerFunc(p.handle)
 	for _, m := range cfg.Mountpoints {
 		p.router.PathPrefix(m.Path).Handler(
 			http.FileServer(http.Dir(m.Dir)),
