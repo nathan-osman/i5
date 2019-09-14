@@ -9,6 +9,7 @@ import (
 	"github.com/nathan-osman/i5/conman"
 	"github.com/nathan-osman/i5/dockmon"
 	"github.com/nathan-osman/i5/server"
+	"github.com/nathan-osman/i5/status"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 )
@@ -47,6 +48,11 @@ func main() {
 			Usage:  "HTTPS address to listen on",
 		},
 		cli.StringFlag{
+			Name:   "status-domain",
+			EnvVar: "STATUS_DOMAIN",
+			Usage:  "domain name for internal server",
+		},
+		cli.StringFlag{
 			Name:   "storage-dir",
 			EnvVar: "STORAGE_DIR",
 			Usage:  "directory for storing certificates",
@@ -74,6 +80,14 @@ func main() {
 			ConStoppedChan: dm.ConStoppedChan,
 		})
 		defer cm.Close()
+
+		// If a domain name for the internal server was specified, use it
+		if statusDomain := c.String("status-domain"); statusDomain != "" {
+			cm.Add(status.New(&status.Config{
+				Domain: statusDomain,
+				Conman: cm,
+			}))
+		}
 
 		// Create the server
 		sv, err := server.New(&server.Config{
