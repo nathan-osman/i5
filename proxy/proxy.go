@@ -25,8 +25,15 @@ type Proxy struct {
 	router *mux.Router
 }
 
-func (p *Proxy) applyBranding(header http.Header) {
+func applyBranding(header http.Header) {
 	header.Set("X-Powered-By", "i5 - qms.li/i5")
+}
+
+func brandingHandler(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		applyBranding(w.Header())
+		h.ServeHTTP(w, r)
+	})
 }
 
 func (p *Proxy) handle(w http.ResponseWriter, r *http.Request) {
@@ -47,7 +54,7 @@ func (p *Proxy) handle(w http.ResponseWriter, r *http.Request) {
 			}
 		},
 		ModifyResponse: func(resp *http.Response) error {
-			p.applyBranding(resp.Header)
+			applyBranding(resp.Header)
 			return nil
 		},
 		ErrorHandler: func(w http.ResponseWriter, r *http.Request, err error) {
@@ -55,8 +62,6 @@ func (p *Proxy) handle(w http.ResponseWriter, r *http.Request) {
 		},
 	}).ServeHTTP(w, r)
 }
-
-// TODO: FileServer() should use applyBranding()
 
 // New creates and initializes a new proxy for a domain.
 func New(cfg *Config) *Proxy {
@@ -66,7 +71,7 @@ func New(cfg *Config) *Proxy {
 	}
 	for _, m := range cfg.Mountpoints {
 		p.router.PathPrefix(m.Path).Handler(
-			http.FileServer(http.Dir(m.Dir)),
+			brandingHandler(http.FileServer(http.Dir(m.Dir))),
 		)
 	}
 	if p.addr != "" {
