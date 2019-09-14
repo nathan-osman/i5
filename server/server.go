@@ -5,12 +5,11 @@ import (
 	"crypto/tls"
 	"net"
 	"net/http"
-	"net/http/httputil"
 	"net/url"
 
 	"github.com/mholt/certmagic"
 	"github.com/nathan-osman/i5/conman"
-	"github.com/nathan-osman/i5/dockmon"
+	"github.com/nathan-osman/i5/proxy"
 	"github.com/sirupsen/logrus"
 )
 
@@ -28,37 +27,10 @@ func (s *Server) decide(name string) error {
 	return err
 }
 
-func (s *Server) handle(w http.ResponseWriter, r *http.Request, con *dockmon.Container, secure bool) {
-	(&httputil.ReverseProxy{
-		Director: func(inReq *http.Request) {
-			if secure {
-				inReq.Header.Set("X-Forwarded-Proto", "https")
-			}
-			if host, _, err := net.SplitHostPort(r.RemoteAddr); err == nil {
-				inReq.Header.Set("X-Real-IP", host)
-			}
-			inReq.Host = r.Host
-			inReq.URL = &url.URL{
-				Scheme:   "http",
-				Host:     con.Addr,
-				Path:     r.URL.Path,
-				RawQuery: r.URL.RawQuery,
-			}
-		},
-		ModifyResponse: func(resp *http.Response) error {
-			resp.Header.Set("X-Powered-By", "i5 - qms.li/i5")
-			return nil
-		},
-		ErrorHandler: func(w http.ResponseWriter, r *http.Request, err error) {
-			renderErrorTemplate(w, r, http.StatusBadGateway)
-		},
-	}).ServeHTTP(w, r)
-}
-
 func (s *Server) handleHTTP(w http.ResponseWriter, r *http.Request) {
 	if con, err := s.conman.Lookup(r.Host); err == nil {
 		if con.Insecure {
-			s.handle(w, r, con, false)
+			con.Proxy.ServeHTTP(w, r)
 		} else {
 			http.Redirect(
 				w, r,
@@ -78,7 +50,9 @@ func (s *Server) handleHTTP(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) handleHTTPS(w http.ResponseWriter, r *http.Request) {
 	if con, err := s.conman.Lookup(r.Host); err == nil {
-		s.handle(w, r, con, true)
+		con.Proxy.ServeHTTP(w, r.WithContext(
+			context.WithValue(r.Context(), proxy.ContextSecure, true),
+		))
 	} else {
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 	}
