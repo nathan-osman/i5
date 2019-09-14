@@ -3,6 +3,7 @@ package dockmon
 import (
 	"context"
 	"errors"
+	"net/http"
 	"strconv"
 	"strings"
 
@@ -33,8 +34,8 @@ type Container struct {
 	Domains []string
 	// Insecure indicates that non-TLS traffic should not be upgraded.
 	Insecure bool
-	// Proxy is used for serving content from the container.
-	Proxy *proxy.Proxy
+	// Handler is used for serving content from the container.
+	Handler http.Handler
 }
 
 // New creates a new Container from the provided data.
@@ -78,7 +79,7 @@ func NewContainer(id, name string, labels map[string]string) (*Container, error)
 	if cfg.Addr == "" && cfg.Mountpoints == nil {
 		return nil, errMissingAddrOrMountpoints
 	}
-	c.Proxy = proxy.New(cfg)
+	c.Handler = proxy.New(cfg)
 	return c, nil
 }
 

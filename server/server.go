@@ -30,7 +30,7 @@ func (s *Server) decide(name string) error {
 func (s *Server) handleHTTP(w http.ResponseWriter, r *http.Request) {
 	if con, err := s.conman.Lookup(r.Host); err == nil {
 		if con.Insecure {
-			con.Proxy.ServeHTTP(w, r)
+			con.Handler.ServeHTTP(w, r)
 		} else {
 			http.Redirect(
 				w, r,
@@ -50,7 +50,7 @@ func (s *Server) handleHTTP(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) handleHTTPS(w http.ResponseWriter, r *http.Request) {
 	if con, err := s.conman.Lookup(r.Host); err == nil {
-		con.Proxy.ServeHTTP(w, r.WithContext(
+		con.Handler.ServeHTTP(w, r.WithContext(
 			context.WithValue(r.Context(), proxy.ContextSecure, true),
 		))
 	} else {
