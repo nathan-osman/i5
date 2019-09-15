@@ -8,6 +8,7 @@ require (
 	github.com/docker/docker v1.13.1
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.4.0 // indirect
+	github.com/flosch/pongo2 v0.0.0-20190707114632-bbf5a6c351f4
 	github.com/gorilla/mux v1.7.3
 	github.com/mholt/certmagic v0.5.1
 	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect

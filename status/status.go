@@ -3,6 +3,7 @@ package status
 import (
 	"net/http"
 
+	"github.com/flosch/pongo2"
 	"github.com/gorilla/mux"
 	"github.com/nathan-osman/i5/conman"
 	"github.com/nathan-osman/i5/dockmon"
@@ -10,19 +11,21 @@ import (
 
 // Status provides a set of endpoints that display status information.
 type Status struct {
-	conman *conman.Conman
-	router *mux.Router
+	conman      *conman.Conman
+	router      *mux.Router
+	templateSet *pongo2.TemplateSet
 }
 
 func (s *Status) index(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Hello, world!"))
+	s.render(w, r, "index.html", pongo2.Context{})
 }
 
 // New creates a new status container.
 func New(cfg *Config) *dockmon.Container {
 	s := &Status{
-		conman: cfg.Conman,
-		router: mux.NewRouter(),
+		conman:      cfg.Conman,
+		router:      mux.NewRouter(),
+		templateSet: pongo2.NewSet("", &vfsgenLoader{}),
 	}
 	s.router.HandleFunc("/", s.index)
 	return &dockmon.Container{
