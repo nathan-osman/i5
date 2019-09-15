@@ -5,6 +5,7 @@ import (
 
 	"github.com/flosch/pongo2"
 	"github.com/gorilla/mux"
+	"github.com/nathan-osman/i5/assets"
 	"github.com/nathan-osman/i5/conman"
 	"github.com/nathan-osman/i5/dockmon"
 )
@@ -27,6 +28,7 @@ func New(cfg *Config) *dockmon.Container {
 		router:      mux.NewRouter(),
 		templateSet: pongo2.NewSet("", &vfsgenLoader{}),
 	}
+	s.router.PathPrefix("/static").Handler(http.FileServer(assets.Assets))
 	s.router.HandleFunc("/", s.index)
 	return &dockmon.Container{
 		Domains: []string{cfg.Domain},
