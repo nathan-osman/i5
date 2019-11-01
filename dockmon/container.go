@@ -38,7 +38,7 @@ type Container struct {
 	Handler http.Handler
 }
 
-// New creates a new Container from the provided data.
+// NewContainer creates a new Container from the provided data.
 func NewContainer(id, name string, labels map[string]string) (*Container, error) {
 	var (
 		cfg = &proxy.Config{}
@@ -85,13 +85,13 @@ func NewContainer(id, name string, labels map[string]string) (*Container, error)
 
 // NewContainerFromClient creates a new Container using the provided client.
 func NewContainerFromClient(ctx context.Context, client *client.Client, id string) (*Container, error) {
-	if containerJSON, err := client.ContainerInspect(ctx, id); err == nil {
-		return NewContainer(
-			containerJSON.ID,
-			containerJSON.Name[1:],
-			containerJSON.Config.Labels,
-		)
-	} else {
+	containerJSON, err := client.ContainerInspect(ctx, id)
+	if err != nil {
 		return nil, err
 	}
+	return NewContainer(
+		containerJSON.ID,
+		containerJSON.Name[1:],
+		containerJSON.Config.Labels,
+	)
 }
