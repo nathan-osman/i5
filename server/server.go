@@ -9,6 +9,7 @@ import (
 
 	"github.com/mholt/certmagic"
 	"github.com/nathan-osman/i5/conman"
+	"github.com/nathan-osman/i5/dockmon"
 	"github.com/nathan-osman/i5/proxy"
 	"github.com/sirupsen/logrus"
 )
@@ -27,10 +28,22 @@ func (s *Server) decide(name string) error {
 	return err
 }
 
+func (s *Server) handleError(w http.ResponseWriter, code int) {
+	http.Error(w, http.StatusText(code), code)
+}
+
+func (s *Server) handleRequest(con *dockmon.Container, w http.ResponseWriter, r *http.Request) {
+	if con.Running {
+		con.Handler.ServeHTTP(w, r)
+	} else {
+		s.handleError(w, http.StatusInternalServerError)
+	}
+}
+
 func (s *Server) handleHTTP(w http.ResponseWriter, r *http.Request) {
 	if con, err := s.conman.Lookup(r.Host); err == nil {
 		if con.Insecure {
-			con.Handler.ServeHTTP(w, r)
+			s.handleRequest(con, w, r)
 		} else {
 			http.Redirect(
 				w, r,
@@ -44,17 +57,17 @@ func (s *Server) handleHTTP(w http.ResponseWriter, r *http.Request) {
 			)
 		}
 	} else {
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		s.handleError(w, http.StatusBadRequest)
 	}
 }
 
 func (s *Server) handleHTTPS(w http.ResponseWriter, r *http.Request) {
 	if con, err := s.conman.Lookup(r.Host); err == nil {
-		con.Handler.ServeHTTP(w, r.WithContext(
+		s.handleRequest(con, w, r.WithContext(
 			context.WithValue(r.Context(), proxy.ContextSecure, true),
 		))
 	} else {
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		s.handleError(w, http.StatusBadRequest)
 	}
 }
 
