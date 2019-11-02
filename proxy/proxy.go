@@ -7,6 +7,7 @@ import (
 	"net/url"
 
 	"github.com/gorilla/mux"
+	"github.com/nathan-osman/i5/util"
 )
 
 const (
@@ -58,7 +59,7 @@ func (p *Proxy) handle(w http.ResponseWriter, r *http.Request) {
 			return nil
 		},
 		ErrorHandler: func(w http.ResponseWriter, r *http.Request, err error) {
-			renderErrorTemplate(w, r, http.StatusBadGateway)
+			util.RenderError(w, r, http.StatusBadGateway, err)
 		},
 	}).ServeHTTP(w, r)
 }
