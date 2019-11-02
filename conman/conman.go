@@ -9,6 +9,10 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+var (
+	ErrInvalidDomain = fmt.Errorf("invalid domain name specified")
+)
+
 // Conman manages running containers based on Docker events.
 type Conman struct {
 	mutex      sync.RWMutex
@@ -27,10 +31,14 @@ func (c *Conman) run() {
 		select {
 		case e := <-c.eventChan:
 			switch e.Action {
-			case dockmon.Start:
+			case dockmon.Create:
 				c.Add(e.Container)
-			case dockmon.Die:
+			case dockmon.Destroy:
 				c.Remove(e.Container)
+			case dockmon.Start:
+				c.ToggleState(e.Container, true)
+			case dockmon.Die:
+				c.ToggleState(e.Container, false)
 			}
 		case <-c.closeChan:
 			return
@@ -55,7 +63,7 @@ func (c *Conman) Add(con *dockmon.Container) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 	for _, domain := range con.Domains {
-		c.log.Debugf("added %s", domain)
+		c.log.Debugf("created container for %s", domain)
 		c.domainMap.Insert(domain, con)
 	}
 }
@@ -64,8 +72,17 @@ func (c *Conman) Remove(con *dockmon.Container) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 	for _, domain := range con.Domains {
-		c.log.Debugf("removed %s", domain)
+		c.log.Debugf("removed container for %s", domain)
 		c.domainMap.Remove(domain)
+	}
+}
+
+func (c *Conman) ToggleState(con *dockmon.Container, running bool) {
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
+	for _, domain := range con.Domains {
+		c.log.Debugf("toggled %s running to %t", domain, running)
+		c.domainMap.Insert(domain, con)
 	}
 }
 
@@ -76,7 +93,7 @@ func (c *Conman) Lookup(name string) (*dockmon.Container, error) {
 	if v, ok := c.domainMap[name]; ok {
 		return v.(*dockmon.Container), nil
 	} else {
-		return nil, fmt.Errorf("invalid domain \"%s\"", name)
+		return nil, ErrInvalidDomain
 	}
 }
 
