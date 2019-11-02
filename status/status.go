@@ -34,5 +34,6 @@ func New(cfg *Config) *dockmon.Container {
 		Domains:  []string{cfg.Domain},
 		Insecure: cfg.Insecure,
 		Handler:  s.router,
+		Running:  true,
 	}
 }

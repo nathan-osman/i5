@@ -10,21 +10,29 @@ import (
 var errorTemplate = template.Must(template.New("").Parse(`<!DOCTYPE html>
 <html>
   <head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>{{.StatusCode}} {{.StatusText}}</title>
-	<style>
-	  body {
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.StatusCode}} {{.StatusText}}</title>
+    <style>
+      html, body {
+        height: 100%;
+      }
+      body {
         align-items: center;
         background-color: #f7f7f7;
+        color: #777;
         display: flex;
         font-family: sans-serif;
         justify-content: center;
+        margin: 0;
+      }
+      a {
+        color: #ff6600;
       }
       footer {
         border-top: 2px solid #ddd;
         display: flex;
-        padding: 16px 0;
+        padding-top: 12px;
       }
       h1 {
         font-size: 30pt;
@@ -32,16 +40,16 @@ var errorTemplate = template.Must(template.New("").Parse(`<!DOCTYPE html>
         margin: 0;
       }
       p {
-        color: #777;
+        color: #aaa;
       }
       .logo {
         margin-right: 8px;
         width: 30pt;
       }
-	</style>
+    </style>
   </head>
   <body>
-	<div class="content">
+    <div class="content">
       <h1>Something Went Wrong</h1>
       <p>Our server was unable to display the page you requested.</p>
       <p>More technical information may be available below:</p>
