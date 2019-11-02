@@ -78,8 +78,7 @@ func main() {
 
 		// Create the container manager
 		cm := conman.New(&conman.Config{
-			ConStartedChan: dm.ConStartedChan,
-			ConStoppedChan: dm.ConStoppedChan,
+			EventChan: dm.EventChan,
 		})
 		defer cm.Close()
 

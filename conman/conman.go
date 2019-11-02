@@ -11,13 +11,12 @@ import (
 
 // Conman manages running containers based on Docker events.
 type Conman struct {
-	mutex          sync.RWMutex
-	log            *logrus.Entry
-	domainMap      util.StringMap
-	conStartedChan <-chan *dockmon.Container
-	conStoppedChan <-chan *dockmon.Container
-	closeChan      chan bool
-	closedChan     chan bool
+	mutex      sync.RWMutex
+	log        *logrus.Entry
+	domainMap  util.StringMap
+	eventChan  <-chan *dockmon.Event
+	closeChan  chan bool
+	closedChan chan bool
 }
 
 func (c *Conman) run() {
@@ -26,10 +25,13 @@ func (c *Conman) run() {
 	c.log.Info("service manager started")
 	for {
 		select {
-		case con := <-c.conStartedChan:
-			c.Add(con)
-		case con := <-c.conStoppedChan:
-			c.Remove(con)
+		case e := <-c.eventChan:
+			switch e.Action {
+			case dockmon.Start:
+				c.Add(e.Container)
+			case dockmon.Die:
+				c.Remove(e.Container)
+			}
 		case <-c.closeChan:
 			return
 		}
@@ -39,12 +41,11 @@ func (c *Conman) run() {
 // New creates a new container manager.
 func New(cfg *Config) *Conman {
 	c := &Conman{
-		log:            logrus.WithField("context", "conman"),
-		domainMap:      util.StringMap{},
-		conStartedChan: cfg.ConStartedChan,
-		conStoppedChan: cfg.ConStoppedChan,
-		closeChan:      make(chan bool),
-		closedChan:     make(chan bool),
+		log:        logrus.WithField("context", "conman"),
+		domainMap:  util.StringMap{},
+		eventChan:  cfg.EventChan,
+		closeChan:  make(chan bool),
+		closedChan: make(chan bool),
 	}
 	go c.run()
 	return c

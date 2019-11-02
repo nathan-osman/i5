@@ -19,18 +19,7 @@ func (s StringMap) Has(k string) bool {
 	return ok
 }
 
-// Intersection returns a list of keys that are present in both maps.
-func (s StringMap) Intersection(other StringMap) StringMap {
-	ret := StringMap{}
-	for k, v := range s {
-		if other.Has(k) {
-			ret[k] = v
-		}
-	}
-	return ret
-}
-
-// Difference returns a list of keys that are in this map but not another.
+// Difference returns a map of the items that are in this map but not another.
 func (s StringMap) Difference(other StringMap) StringMap {
 	diff := StringMap{}
 	for k, v := range s {

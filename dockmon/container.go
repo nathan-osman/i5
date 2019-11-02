@@ -24,7 +24,7 @@ var (
 	errMissingAddrOrMountpoints = errors.New("missing addr or mountpoints")
 )
 
-// Container represents configuration for an application running within a Docker container. The configuration is generated from the container's labels.
+// Container represents configuration for an application in a Docker container. The configuration is generated from the container's labels.
 type Container struct {
 	// ID is the container's unique identifier.
 	ID string
@@ -36,15 +36,18 @@ type Container struct {
 	Insecure bool
 	// Handler is used for serving content from the container.
 	Handler http.Handler
+	// Running indicates whether the container is running or not
+	Running bool
 }
 
 // NewContainer creates a new Container from the provided data.
-func NewContainer(id, name string, labels map[string]string) (*Container, error) {
+func NewContainer(id, name string, labels map[string]string, running bool) (*Container, error) {
 	var (
 		cfg = &proxy.Config{}
 		c   = &Container{
-			ID:   id,
-			Name: name,
+			ID:      id,
+			Name:    name,
+			Running: running,
 		}
 	)
 	if addr, ok := labels[labelAddr]; ok {
@@ -93,5 +96,6 @@ func NewContainerFromClient(ctx context.Context, client *client.Client, id strin
 		containerJSON.ID,
 		containerJSON.Name[1:],
 		containerJSON.Config.Labels,
+		containerJSON.State.Running,
 	)
 }

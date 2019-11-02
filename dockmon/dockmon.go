@@ -12,8 +12,14 @@ import (
 )
 
 const (
-	actionStart = "start"
-	actionDie   = "die"
+	// Create indicates that a container has been created.
+	Create = "create"
+	// Destroy indicates that a container has been destroyed.
+	Destroy = "destroy"
+	// Start indicates that a container has been started.
+	Start = "start"
+	// Die indicates that a container has been stopped.
+	Die = "die"
 )
 
 var evtOptions = types.EventsOptions{
@@ -21,54 +27,97 @@ var evtOptions = types.EventsOptions{
 }
 
 func init() {
-	evtOptions.Filters.Add("event", actionStart)
-	evtOptions.Filters.Add("event", actionDie)
+	evtOptions.Filters.Add("event", Create)
+	evtOptions.Filters.Add("event", Destroy)
+	evtOptions.Filters.Add("event", Start)
+	evtOptions.Filters.Add("event", Die)
 }
 
-// Dockmon manages a connection to the Docker daemon and delivers events as containers are started and stopped. A list of running containers is also kept.
+// Event represents a particular action that has been taken on a container.
+type Event struct {
+	Action    string
+	Container *Container
+}
+
+// Dockmon manages a connection to the Docker daemon and delivers events as containers are created, destroyed, started, and stopped. A list of containers is also kept.
 type Dockmon struct {
-	ConStartedChan <-chan *Container
-	ConStoppedChan <-chan *Container
-	log            *logrus.Entry
-	client         *client.Client
-	conMap         util.StringMap
-	conStartedChan chan *Container
-	conStoppedChan chan *Container
-	closeFunc      context.CancelFunc
-	closedChan     chan bool
+	EventChan  <-chan *Event
+	log        *logrus.Entry
+	client     *client.Client
+	conMap     util.StringMap
+	eventChan  chan *Event
+	closeFunc  context.CancelFunc
+	closedChan chan bool
+}
+
+func (d *Dockmon) sendEvent(action string, con *Container) {
+	d.eventChan <- &Event{
+		Action:    action,
+		Container: con,
+	}
 }
 
 func (d *Dockmon) add(ctx context.Context, id string) {
-	if s, err := NewContainerFromClient(ctx, d.client, id); err == nil {
-		d.conMap.Insert(id, s)
-		d.conStartedChan <- s
+	if con, err := NewContainerFromClient(ctx, d.client, id); err == nil {
+		d.conMap.Insert(id, con)
+		d.sendEvent(Create, con)
+		if con.Running {
+			d.sendEvent(Start, con)
+		}
+	}
+}
+
+func (d *Dockmon) toggleState(id string, running bool) {
+	if v, ok := d.conMap[id]; ok {
+		con := v.(*Container)
+		con.Running = running
+		if running {
+			d.sendEvent(Start, con)
+		} else {
+			d.sendEvent(Die, con)
+		}
 	}
 }
 
 func (d *Dockmon) sync(ctx context.Context) error {
 
-	// Fetch the list of running containers
+	// Fetch the list of containers
 	d.log.Info("performing sync...")
-	containers, err := d.client.ContainerList(ctx, types.ContainerListOptions{})
+	containers, err := d.client.ContainerList(
+		ctx,
+		types.ContainerListOptions{All: true},
+	)
 	if err != nil {
 		return err
 	}
 
-	// Create a StringMap of the containers
-	conMap := util.StringMap{}
+	// Create a StringMap of the containers from the new list
+	newConMap := util.StringMap{}
 	for _, con := range containers {
-		conMap.Insert(con.ID, nil)
+		newConMap.Insert(con.ID, &Container{
+			Running: con.State == "running",
+		})
 	}
 
-	// Add the containers that we don't know were started
-	for conID := range conMap.Difference(d.conMap) {
-		d.add(ctx, conID)
+	// Compare the new map with the old one
+	// - toggle the state of any containers that have changed
+	// - add any containers that we didn't know were started
+	for conID, v := range newConMap {
+		oldV, ok := d.conMap[conID]
+		if ok {
+			con := oldV.(*Container)
+			if v.(*Container).Running != con.Running {
+				d.toggleState(conID, con.Running)
+			}
+		} else {
+			d.add(ctx, conID)
+		}
 	}
 
 	// Remove the containers that we don't know were stopped
-	for containerID, s := range d.conMap.Difference(conMap) {
-		d.conMap.Remove(containerID)
-		d.conStoppedChan <- s.(*Container)
+	for conID, v := range d.conMap.Difference(newConMap) {
+		d.conMap.Remove(conID)
+		d.sendEvent(Destroy, v.(*Container))
 	}
 
 	return nil
@@ -83,13 +132,17 @@ func (d *Dockmon) loop(ctx context.Context) error {
 		select {
 		case msg := <-msgChan:
 			switch msg.Action {
-			case actionStart:
+			case Create:
 				d.add(ctx, msg.ID)
-			case actionDie:
-				if s, ok := d.conMap[msg.ID]; ok {
+			case Destroy:
+				if v, ok := d.conMap[msg.ID]; ok {
 					d.conMap.Remove(msg.ID)
-					d.conStoppedChan <- s.(*Container)
+					d.sendEvent(Destroy, v.(*Container))
 				}
+			case Start:
+				d.toggleState(msg.ID, true)
+			case Die:
+				d.toggleState(msg.ID, false)
 			}
 		case err := <-errChan:
 			return err
@@ -99,8 +152,7 @@ func (d *Dockmon) loop(ctx context.Context) error {
 
 func (d *Dockmon) run(ctx context.Context) {
 	defer close(d.closedChan)
-	defer close(d.conStoppedChan)
-	defer close(d.conStartedChan)
+	defer close(d.eventChan)
 	defer d.log.Info("Docker monitor stopped")
 	d.log.Info("Docker monitor started")
 	for {
@@ -126,18 +178,15 @@ func New(cfg *Config) (*Dockmon, error) {
 	}
 	var (
 		ctx, cancelFunc = context.WithCancel(context.Background())
-		conStartedChan  = make(chan *Container)
-		conStoppedChan  = make(chan *Container)
+		eventChan       = make(chan *Event)
 		d               = &Dockmon{
-			ConStartedChan: conStartedChan,
-			ConStoppedChan: conStoppedChan,
-			log:            logrus.WithField("context", "dockmon"),
-			client:         c,
-			conMap:         util.StringMap{},
-			conStartedChan: conStartedChan,
-			conStoppedChan: conStoppedChan,
-			closeFunc:      cancelFunc,
-			closedChan:     make(chan bool),
+			EventChan:  eventChan,
+			log:        logrus.WithField("context", "dockmon"),
+			client:     c,
+			conMap:     util.StringMap{},
+			eventChan:  eventChan,
+			closeFunc:  cancelFunc,
+			closedChan: make(chan bool),
 		}
 	)
 	go d.run(ctx)
