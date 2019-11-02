@@ -26,9 +26,9 @@ func init() {
 }
 
 // RenderError renders the error template with the specified error.
-func RenderError(w http.ResponseWriter, r *http.Request, statusCode int, err error) {
+func RenderError(w http.ResponseWriter, r *http.Request, statusCode int, message string) {
 	buff := &bytes.Buffer{}
-	errorTemplate.Execute(buff, err)
+	errorTemplate.Execute(buff, message)
 	b := buff.Bytes()
 	w.Header().Set("Content-Length", strconv.Itoa(len(b)))
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")

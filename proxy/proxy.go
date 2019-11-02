@@ -59,7 +59,7 @@ func (p *Proxy) handle(w http.ResponseWriter, r *http.Request) {
 			return nil
 		},
 		ErrorHandler: func(w http.ResponseWriter, r *http.Request, err error) {
-			util.RenderError(w, r, http.StatusBadGateway, err)
+			util.RenderError(w, r, http.StatusBadGateway, err.Error())
 		},
 	}).ServeHTTP(w, r)
 }

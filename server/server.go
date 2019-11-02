@@ -11,7 +11,13 @@ import (
 	"github.com/nathan-osman/i5/conman"
 	"github.com/nathan-osman/i5/dockmon"
 	"github.com/nathan-osman/i5/proxy"
+	"github.com/nathan-osman/i5/util"
 	"github.com/sirupsen/logrus"
+)
+
+const (
+	errContainerNotRunning = "container serving this domain is not running"
+	errInvalidDomainName   = "invalid domain name specified"
 )
 
 // Server listens for incoming connections and routes them accordingly.
@@ -28,15 +34,11 @@ func (s *Server) decide(name string) error {
 	return err
 }
 
-func (s *Server) handleError(w http.ResponseWriter, code int) {
-	http.Error(w, http.StatusText(code), code)
-}
-
 func (s *Server) handleRequest(con *dockmon.Container, w http.ResponseWriter, r *http.Request) {
 	if con.Running {
 		con.Handler.ServeHTTP(w, r)
 	} else {
-		s.handleError(w, http.StatusInternalServerError)
+		util.RenderError(w, r, http.StatusInternalServerError, errContainerNotRunning)
 	}
 }
 
@@ -57,7 +59,7 @@ func (s *Server) handleHTTP(w http.ResponseWriter, r *http.Request) {
 			)
 		}
 	} else {
-		s.handleError(w, http.StatusBadRequest)
+		util.RenderError(w, r, http.StatusBadRequest, errInvalidDomainName)
 	}
 }
 
@@ -67,7 +69,7 @@ func (s *Server) handleHTTPS(w http.ResponseWriter, r *http.Request) {
 			context.WithValue(r.Context(), proxy.ContextSecure, true),
 		))
 	} else {
-		s.handleError(w, http.StatusBadRequest)
+		util.RenderError(w, r, http.StatusBadRequest, errInvalidDomainName)
 	}
 }
 
