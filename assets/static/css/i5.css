@@ -1,6 +1,12 @@
 body {
+  background: #f7f7f7;
+  color: #202020;
   font-family: sans-serif;
   margin: 0;
+}
+
+p {
+  font-size: 14pt;
 }
 
 .container {
@@ -9,21 +15,21 @@ body {
 }
 
 .header {
-  border-bottom: 8px solid #47b;
-  margin-bottom: 32px;
-  overflow: auto;
-  padding: 8px;
-}
-
-.header img {
-  float: left;
-  margin-right: 16px;
-  width: 64px;
+  background-color: #202020;
+  background-position: center;
+  background-image: url(/static/img/bg.png);
+  background-repeat: no-repeat;
+  color: #ffffff;
+  height: 300px;
 }
 
 .header h1 {
-  color: #47b;
-  font-size: 4em;
+  font-size: 36pt;
   font-weight: normal;
   margin: 0;
+  padding-top: 8px;
+}
+
+.header h1 img {
+  width: 48px;
 }
