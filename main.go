@@ -54,6 +54,11 @@ func main() {
 			EnvVar: "STATUS_DOMAIN",
 			Usage:  "domain name for internal server",
 		},
+		cli.BoolFlag{
+			Name:   "status-insecure",
+			EnvVar: "STATUS_INSECURE",
+			Usage:  "allow insecure connections to the internal server",
+		},
 		cli.StringFlag{
 			Name:   "storage-dir",
 			EnvVar: "STORAGE_DIR",
@@ -85,8 +90,9 @@ func main() {
 		// If a domain name for the internal server was specified, use it
 		if statusDomain := c.String("status-domain"); statusDomain != "" {
 			cm.Add(status.New(&status.Config{
-				Domain: statusDomain,
-				Conman: cm,
+				Domain:   statusDomain,
+				Insecure: c.Bool("status-insecure"),
+				Conman:   cm,
 			}))
 		}
 

@@ -31,7 +31,8 @@ func New(cfg *Config) *dockmon.Container {
 	s.router.PathPrefix("/static").Handler(http.FileServer(assets.Assets))
 	s.router.HandleFunc("/", s.index)
 	return &dockmon.Container{
-		Domains: []string{cfg.Domain},
-		Handler: s.router,
+		Domains:  []string{cfg.Domain},
+		Insecure: cfg.Insecure,
+		Handler:  s.router,
 	}
 }
