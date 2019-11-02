@@ -18,7 +18,9 @@ type Status struct {
 }
 
 func (s *Status) index(w http.ResponseWriter, r *http.Request) {
-	s.render(w, r, "index.html", pongo2.Context{})
+	s.render(w, r, "index.html", pongo2.Context{
+		"info": s.conman.Info(),
+	})
 }
 
 // New creates a new status container.
