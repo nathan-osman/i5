@@ -19,9 +19,20 @@
       </div>
     </div>
     <div class="container">
-      <p>
-        The list below shows the containers currently being monitored by i5 and their current status:
-      </p>
+      <div class="items">
+        {% for c in info %}
+          <div class="item">
+            <div class="name">{{ c.Name }}</div>
+            <div class="state{% if not c.Running %} stopped{% endif %}">
+              {% if c.Running %}
+                Running
+              {% else %}
+                Stopped
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
     </div>
   </body>
 </html>

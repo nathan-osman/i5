@@ -5,10 +5,6 @@ body {
   margin: 0;
 }
 
-p {
-  font-size: 14pt;
-}
-
 .container {
   margin: auto;
   max-width: 800px;
@@ -32,4 +28,20 @@ p {
 
 .header h1 img {
   width: 48px;
+}
+
+.item {
+  border-bottom: 4px solid #eee;
+  display: flex;
+  font-size: 16pt;
+  justify-content: space-between;
+  padding: 24px 0;
+}
+
+.item .name {
+  font-weight: bold;
+}
+
+.item .state.stopped {
+  color: #aa0000;
 }
