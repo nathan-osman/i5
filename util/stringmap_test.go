@@ -23,6 +23,30 @@ func TestStringMapInsertRemoveHas(t *testing.T) {
 	}
 }
 
+func TestStringMapIntersection(t *testing.T) {
+	for _, c := range []struct {
+		map1         StringMap
+		map2         StringMap
+		intersection StringMap
+	}{
+		{
+			map1:         StringMap{stringMapStr1: stringMapStr1},
+			map2:         StringMap{stringMapStr2: stringMapStr2},
+			intersection: StringMap{},
+		},
+		{
+			map1:         StringMap{stringMapStr1: stringMapStr1, stringMapStr2: stringMapStr2},
+			map2:         StringMap{stringMapStr1: stringMapStr1},
+			intersection: StringMap{stringMapStr1: stringMapStr1},
+		},
+	} {
+		intersection := c.map1.Intersection(c.map2)
+		if !reflect.DeepEqual(intersection, c.intersection) {
+			t.Fatalf("%+v != %+v", intersection, c.intersection)
+		}
+	}
+}
+
 func TestStringMapDifference(t *testing.T) {
 	s1 := StringMap{}
 	s1.Insert(stringMapStr, stringMapStr)
