@@ -13,6 +13,7 @@ import (
 
 const (
 	labelAddr        = "i5.addr"
+	labelDatabase    = "i5.database"
 	labelDomains     = "i5.domains"
 	labelInsecure    = "i5.insecure"
 	labelMountpoints = "i5.mountpoints"
@@ -36,6 +37,8 @@ type Container struct {
 	Insecure bool
 	// Handler is used for serving content from the container.
 	Handler http.Handler
+	// Database provides database requirements for the container.
+	Database *Database
 	// Running indicates whether the container is running or not
 	Running bool
 }
@@ -52,6 +55,13 @@ func NewContainer(id, name string, labels map[string]string, running bool) (*Con
 	)
 	if addr, ok := labels[labelAddr]; ok {
 		cfg.Addr = addr
+	}
+	if databaseStr, ok := labels[labelDatabase]; ok {
+		d, err := ParseDatabaseString(databaseStr)
+		if err != nil {
+			return nil, err
+		}
+		c.Database = d
 	}
 	if domains, ok := labels[labelDomains]; ok {
 		for _, domain := range strings.Split(domains, ",") {

@@ -9,6 +9,7 @@ import (
 	"syscall"
 
 	"github.com/nathan-osman/i5/conman"
+	"github.com/nathan-osman/i5/db"
 	"github.com/nathan-osman/i5/dockmon"
 	"github.com/nathan-osman/i5/server"
 	"github.com/nathan-osman/i5/status"
@@ -49,6 +50,34 @@ func main() {
 			EnvVar: "HTTPS_ADDR",
 			Usage:  "HTTPS address to listen on",
 		},
+		cli.BoolFlag{
+			Name:   "postgres",
+			EnvVar: "POSTGRES",
+			Usage:  "connect to PostgreSQL",
+		},
+		cli.IntFlag{
+			Name:   "postgres-port",
+			Value:  5432,
+			EnvVar: "POSTGRES_PORT",
+			Usage:  "port for PostgreSQL server",
+		},
+		cli.StringFlag{
+			Name:   "postgres-host",
+			Value:  "postgres",
+			EnvVar: "POSTGRES_HOST",
+			Usage:  "hostname of PostgreSQL server",
+		},
+		cli.StringFlag{
+			Name:   "postgres-user",
+			Value:  "postgres",
+			EnvVar: "POSTGRES_USER",
+			Usage:  "username for connecting to PostgreSQL",
+		},
+		cli.StringFlag{
+			Name:   "postgres-password",
+			EnvVar: "POSTGRES_PASSWORD",
+			Usage:  "password for connecting to PostgreSQL",
+		},
 		cli.StringFlag{
 			Name:   "status-domain",
 			EnvVar: "STATUS_DOMAIN",
@@ -86,6 +115,20 @@ func main() {
 			EventChan: dm.EventChan,
 		})
 		defer cm.Close()
+
+		// Connect to PostgreSQL if requested
+		if c.Bool("postgres") {
+			psql, err := db.NewPostgres(
+				c.String("postgres-host"),
+				c.Int("postgres-port"),
+				c.String("postgres-user"),
+				c.String("postgres-password"),
+			)
+			if err != nil {
+				return err
+			}
+			_ = psql
+		}
 
 		// If a domain name for the internal server was specified, use it
 		if statusDomain := c.String("status-domain"); statusDomain != "" {
