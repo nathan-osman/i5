@@ -2,6 +2,7 @@ package status
 
 import (
 	"net/http"
+	"sort"
 
 	"github.com/flosch/pongo2"
 	"github.com/gorilla/mux"
@@ -17,9 +18,17 @@ type Status struct {
 	templateSet *pongo2.TemplateSet
 }
 
+type ByName []*conman.Info
+
+func (n ByName) Len() int           { return len(n) }
+func (n ByName) Swap(i, j int)      { n[i], n[j] = n[j], n[i] }
+func (n ByName) Less(i, j int) bool { return n[i].Name < n[j].Name }
+
 func (s *Status) index(w http.ResponseWriter, r *http.Request) {
+	i := s.conman.Info()
+	sort.Sort(ByName(i))
 	s.render(w, r, "index.html", pongo2.Context{
-		"info": s.conman.Info(),
+		"info": i,
 	})
 }
 
