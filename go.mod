@@ -10,6 +10,7 @@ require (
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/flosch/pongo2 v0.0.0-20190707114632-bbf5a6c351f4
 	github.com/gorilla/mux v1.7.3
+	github.com/lib/pq v1.2.0
 	github.com/mholt/certmagic v0.8.3
 	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect
 	github.com/shurcooL/httpfs v0.0.0-20190707220628-8d4bc4ba7749 // indirect
