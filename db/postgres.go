@@ -8,15 +8,16 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const NamePostgres = "PostgreSQL"
+const NamePostgreSQL = "postgres"
 
 // Postgres provides access to a PostgreSQL database.
 type Postgres struct {
-	conn *sql.DB
-	log  *logrus.Entry
+	conn    *sql.DB
+	log     *logrus.Entry
+	version string
 }
 
-// NewPostgres attempts to create a connection to a PostgreSQL database.
+// NewPostgres attempts to create a connection to a PostgreSQL database. The server version is retrieved as well.
 func NewPostgres(host string, port int, user, password string) (*Postgres, error) {
 	c, err := sql.Open(
 		"postgres",
@@ -35,24 +36,24 @@ func NewPostgres(host string, port int, user, password string) (*Postgres, error
 		conn: c,
 		log:  logrus.WithField("context", "conman"),
 	}
+	if err := p.conn.QueryRow("SHOW server_version").
+		Scan(&p.version); err != nil {
+		return nil, err
+	}
 	p.log.Info("connected to PostgreSQL")
 	return p, nil
 }
 
 func (p *Postgres) Name() string {
-	return NamePostgres
+	return NamePostgreSQL
 }
 
-func (p *Postgres) Version() (string, error) {
-	r, err := p.conn.Query("SHOW server_version")
-	if err != nil {
-		return "", err
-	}
-	var version string
-	if err := r.Scan(&version); err != nil {
-		return "", err
-	}
-	return version, nil
+func (p *Postgres) Title() string {
+	return "PostgreSQL"
+}
+
+func (p *Postgres) Version() string {
+	return p.version
 }
 
 func (p *Postgres) CreateUser(user, password string) error {

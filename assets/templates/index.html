@@ -42,7 +42,7 @@
       <div class="items">
         {% for d in dbman.List() %}
           <div class="item">
-            <div class="name">{{ d.Name() }}</div>
+            <div class="name">{{ d.Title() }}</div>
             <div class="info">{{ d.Version() }}</div>
           </div>
         {% endfor %}
