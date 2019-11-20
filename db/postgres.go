@@ -7,6 +7,8 @@ import (
 	_ "github.com/lib/pq"
 )
 
+const NamePostgres = "postgres"
+
 // Postgres provides access to a PostgreSQL database.
 type Postgres struct {
 	conn *sql.DB
@@ -30,6 +32,22 @@ func NewPostgres(host string, port int, user, password string) (*Postgres, error
 	return &Postgres{
 		conn: c,
 	}, nil
+}
+
+func (p *Postgres) Name() string {
+	return NamePostgres
+}
+
+func (p *Postgres) Version() (string, error) {
+	r, err := p.conn.Query("SHOW server_version")
+	if err != nil {
+		return "", err
+	}
+	var version string
+	if err := r.Scan(&version); err != nil {
+		return "", err
+	}
+	return version
 }
 
 func (p *Postgres) CreateUser(user, password string) error {

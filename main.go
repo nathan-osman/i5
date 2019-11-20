@@ -116,6 +116,9 @@ func main() {
 		})
 		defer cm.Close()
 
+		// Create the database manager
+		dbmgr := db.NewManager()
+
 		// Connect to PostgreSQL if requested
 		if c.Bool("postgres") {
 			psql, err := db.NewPostgres(
@@ -127,7 +130,7 @@ func main() {
 			if err != nil {
 				return err
 			}
-			_ = psql
+			dbmgr.Register(psql)
 		}
 
 		// If a domain name for the internal server was specified, use it
