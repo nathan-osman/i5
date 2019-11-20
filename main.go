@@ -117,7 +117,7 @@ func main() {
 		defer cm.Close()
 
 		// Create the database manager
-		dbmgr := db.NewManager()
+		dbman := db.NewManager()
 
 		// Connect to PostgreSQL if requested
 		if c.Bool("postgres") {
@@ -130,7 +130,7 @@ func main() {
 			if err != nil {
 				return err
 			}
-			dbmgr.Register(psql)
+			dbman.Register(psql)
 		}
 
 		// If a domain name for the internal server was specified, use it
@@ -139,6 +139,7 @@ func main() {
 				Domain:   statusDomain,
 				Insecure: c.Bool("status-insecure"),
 				Conman:   cm,
+				Dbman:    dbman,
 			}))
 		}
 

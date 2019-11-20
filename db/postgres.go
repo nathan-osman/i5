@@ -5,13 +5,15 @@ import (
 	"fmt"
 
 	_ "github.com/lib/pq"
+	"github.com/sirupsen/logrus"
 )
 
-const NamePostgres = "postgres"
+const NamePostgres = "PostgreSQL"
 
 // Postgres provides access to a PostgreSQL database.
 type Postgres struct {
 	conn *sql.DB
+	log  *logrus.Entry
 }
 
 // NewPostgres attempts to create a connection to a PostgreSQL database.
@@ -29,9 +31,12 @@ func NewPostgres(host string, port int, user, password string) (*Postgres, error
 	if err != nil {
 		return nil, err
 	}
-	return &Postgres{
+	p := &Postgres{
 		conn: c,
-	}, nil
+		log:  logrus.WithField("context", "conman"),
+	}
+	p.log.Info("connected to PostgreSQL")
+	return p, nil
 }
 
 func (p *Postgres) Name() string {
@@ -47,7 +52,7 @@ func (p *Postgres) Version() (string, error) {
 	if err := r.Scan(&version); err != nil {
 		return "", err
 	}
-	return version
+	return version, nil
 }
 
 func (p *Postgres) CreateUser(user, password string) error {
@@ -76,4 +81,9 @@ func (p *Postgres) CreateDatabase(name, user string) error {
 		}
 	}
 	return nil
+}
+
+func (p *Postgres) Close() {
+	p.conn.Close()
+	p.log.Info("disconnected from PostgreSQL")
 }

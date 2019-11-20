@@ -8,12 +8,14 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/nathan-osman/i5/assets"
 	"github.com/nathan-osman/i5/conman"
+	"github.com/nathan-osman/i5/db"
 	"github.com/nathan-osman/i5/dockmon"
 )
 
 // Status provides a set of endpoints that display status information.
 type Status struct {
 	conman      *conman.Conman
+	dbman       *db.Manager
 	router      *mux.Router
 	templateSet *pongo2.TemplateSet
 }
@@ -28,13 +30,15 @@ func (s *Status) index(w http.ResponseWriter, r *http.Request) {
 	i := s.conman.Info()
 	sort.Sort(ByName(i))
 	s.render(w, r, "index.html", pongo2.Context{
-		"info": i,
+		"info":  i,
+		"dbman": s.dbman,
 	})
 }
 
 // New creates a new status container.
 func New(cfg *Config) *dockmon.Container {
 	s := &Status{
+		dbman:       cfg.Dbman,
 		conman:      cfg.Conman,
 		router:      mux.NewRouter(),
 		templateSet: pongo2.NewSet("", &vfsgenLoader{}),

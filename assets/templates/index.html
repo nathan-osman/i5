@@ -19,6 +19,9 @@
       </div>
     </div>
     <div class="container">
+
+      <!-- Docker containers -->
+      <h1>Containers</h1>
       <div class="items">
         {% for c in info %}
           <div class="item">
@@ -33,6 +36,18 @@
           </div>
         {% endfor %}
       </div>
+
+      <!-- Database servers -->
+      <h1>Database Servers</h1>
+      <div class="items">
+        {% for d in dbman.List() %}
+          <div class="item">
+            <div class="name">{{ d.Name() }}</div>
+            <div class="info">{{ d.Version() }}</div>
+          </div>
+        {% endfor %}
+      </div>
+
     </div>
   </body>
 </html>
