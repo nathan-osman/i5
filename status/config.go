@@ -13,6 +13,6 @@ type Config struct {
 	Insecure bool
 	// Conman is a pointer to a Conman instance.
 	Conman *conman.Conman
-	// dbman is a pointer to a db.Manager instance.
+	// Dbman is a pointer to a db.Manager instance.
 	Dbman *db.Manager
 }

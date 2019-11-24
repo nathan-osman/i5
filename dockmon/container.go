@@ -12,11 +12,14 @@ import (
 )
 
 const (
-	labelAddr        = "i5.addr"
-	labelDatabase    = "i5.database"
-	labelDomains     = "i5.domains"
-	labelInsecure    = "i5.insecure"
-	labelMountpoints = "i5.mountpoints"
+	labelAddr             = "i5.addr"
+	labelDatabaseDriver   = "i5.database.driver"
+	labelDatabaseName     = "i5.database.name"
+	labelDatabaseUser     = "i5.database.user"
+	labelDatabasePassword = "i5.database.password"
+	labelDomains          = "i5.domains"
+	labelInsecure         = "i5.insecure"
+	labelMountpoints      = "i5.mountpoints"
 )
 
 var (
@@ -24,6 +27,18 @@ var (
 	errInvalidMountpoint        = errors.New("invalid mountpoint")
 	errMissingAddrOrMountpoints = errors.New("missing addr or mountpoints")
 )
+
+// Database represents database requirements for a container.
+type Database struct {
+	// Driver indicates which database type is needed.
+	Driver string
+	// Name indicates the name of the database to connect to.
+	Name string
+	// User indicates the username for connecting to the database.
+	User string
+	// Password indicates the password for connecting to the database.
+	Password string
+}
 
 // Container represents configuration for an application in a Docker container. The configuration is generated from the container's labels.
 type Container struct {
@@ -43,6 +58,13 @@ type Container struct {
 	Running bool
 }
 
+func getWithDefault(m map[string]string, key, def string) string {
+	if v, ok := m[key]; ok {
+		return v
+	}
+	return def
+}
+
 // NewContainer creates a new Container from the provided data.
 func NewContainer(id, name string, labels map[string]string, running bool) (*Container, error) {
 	var (
@@ -56,12 +78,17 @@ func NewContainer(id, name string, labels map[string]string, running bool) (*Con
 	if addr, ok := labels[labelAddr]; ok {
 		cfg.Addr = addr
 	}
-	if databaseStr, ok := labels[labelDatabase]; ok {
-		d, err := ParseDatabaseString(databaseStr)
-		if err != nil {
-			return nil, err
+	var (
+		databaseDriver, _   = labels[labelDatabaseDriver]
+		databasePassword, _ = labels[labelDatabasePassword]
+	)
+	if databaseDriver != "" && databasePassword != "" {
+		c.Database = &Database{
+			Driver:   databaseDriver,
+			Name:     getWithDefault(labels, labelDatabaseName, name),
+			User:     getWithDefault(labels, labelDatabaseUser, name),
+			Password: databasePassword,
 		}
-		c.Database = d
 	}
 	if domains, ok := labels[labelDomains]; ok {
 		for _, domain := range strings.Split(domains, ",") {

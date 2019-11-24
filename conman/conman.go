@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/nathan-osman/i5/db"
 	"github.com/nathan-osman/i5/dockmon"
 	"github.com/nathan-osman/i5/util"
 	"github.com/sirupsen/logrus"
@@ -19,8 +20,29 @@ type Conman struct {
 	log        *logrus.Entry
 	domainMap  util.StringMap
 	eventChan  <-chan *dockmon.Event
+	dbman      *db.Manager
 	closeChan  chan bool
 	closedChan chan bool
+}
+
+func (c *Conman) initDatabase(con *dockmon.Container) error {
+	d, err := c.dbman.Get(con.Database.Driver)
+	if err != nil {
+		return err
+	}
+	if err := d.CreateUser(
+		con.Database.User,
+		con.Database.Password,
+	); err != nil {
+		return err
+	}
+	if err := d.CreateDatabase(
+		con.Database.Name,
+		con.Database.User,
+	); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (c *Conman) run() {
@@ -52,6 +74,7 @@ func New(cfg *Config) *Conman {
 		log:        logrus.WithField("context", "conman"),
 		domainMap:  util.StringMap{},
 		eventChan:  cfg.EventChan,
+		dbman:      cfg.Dbman,
 		closeChan:  make(chan bool),
 		closedChan: make(chan bool),
 	}
@@ -65,6 +88,11 @@ func (c *Conman) Add(con *dockmon.Container) {
 	for _, domain := range con.Domains {
 		c.log.Debugf("created container for %s", domain)
 		c.domainMap.Insert(domain, con)
+	}
+	if con.Database != nil {
+		if err := c.initDatabase(con); err != nil {
+			c.log.Error(err)
+		}
 	}
 }
 

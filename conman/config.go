@@ -1,6 +1,7 @@
 package conman
 
 import (
+	"github.com/nathan-osman/i5/db"
 	"github.com/nathan-osman/i5/dockmon"
 )
 
@@ -8,4 +9,6 @@ import (
 type Config struct {
 	// EventChan receives container events.
 	EventChan <-chan *dockmon.Event
+	// Dbman is a pointer to a db.Manager instance.
+	Dbman *db.Manager
 }
