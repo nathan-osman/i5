@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql"
 	"fmt"
+	"net/url"
 
 	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
@@ -17,18 +18,21 @@ type Postgres struct {
 	version string
 }
 
+func buildDatabaseURL(host string, port int, user, password string) string {
+	v := url.Values{}
+	v.Add("sslmode", "disable")
+	u := &url.URL{
+		Scheme:   "postgres",
+		User:     url.UserPassword(user, password),
+		Host:     fmt.Sprintf("%s:%d", host, port),
+		RawQuery: v.Encode(),
+	}
+	return u.String()
+}
+
 // NewPostgres attempts to create a connection to a PostgreSQL database. The server version is retrieved as well.
 func NewPostgres(host string, port int, user, password string) (*Postgres, error) {
-	c, err := sql.Open(
-		"postgres",
-		fmt.Sprintf(
-			"host=%s port=%d user=%s password=%s sslmode=disable",
-			host,
-			port,
-			user,
-			password,
-		),
-	)
+	c, err := sql.Open("postgres", buildDatabaseURL(host, port, user, password))
 	if err != nil {
 		return nil, err
 	}
