@@ -110,12 +110,6 @@ func main() {
 		}
 		defer dm.Close()
 
-		// Create the container manager
-		cm := conman.New(&conman.Config{
-			EventChan: dm.EventChan,
-		})
-		defer cm.Close()
-
 		// Create the database manager
 		dbman := db.NewManager()
 
@@ -132,6 +126,13 @@ func main() {
 			}
 			dbman.Register(psql)
 		}
+
+		// Create the container manager
+		cm := conman.New(&conman.Config{
+			EventChan: dm.EventChan,
+			Dbman:     dbman,
+		})
+		defer cm.Close()
 
 		// If a domain name for the internal server was specified, use it
 		if statusDomain := c.String("status-domain"); statusDomain != "" {
