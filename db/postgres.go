@@ -67,7 +67,7 @@ func (p *Postgres) CreateUser(user, password string) error {
 	}
 	defer r.Close()
 	if !r.Next() {
-		if _, err := p.conn.Query("CREATE USER $1 WITH PASSWORD $2"); err != nil {
+		if _, err := p.conn.Query("CREATE USER $1 WITH PASSWORD $2", user, password); err != nil {
 			return err
 		}
 	}
