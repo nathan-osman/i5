@@ -13,4 +13,5 @@ i5 is a reverse proxy for web services running in Docker.
 - Serves static files directly
 - Provides status pages for monitoring services
 - Automatically obtains TLS certificates and redirects HTTP traffic
+- Creates and initializes PostgreSQL databases on-demand
 - Runs within its own Docker container and requires very little configuration
