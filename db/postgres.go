@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/url"
 
-	_ "github.com/lib/pq"
+	"github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 )
 
@@ -67,7 +67,13 @@ func (p *Postgres) CreateUser(user, password string) error {
 	}
 	defer r.Close()
 	if !r.Next() {
-		if _, err := p.conn.Query("CREATE USER $1 WITH PASSWORD $2", user, password); err != nil {
+		if _, err := p.conn.Query(
+			fmt.Sprintf(
+				"CREATE USER %s WITH PASSWORD %s",
+				pq.QuoteIdentifier(user),
+				pq.QuoteLiteral(password),
+			),
+		); err != nil {
 			return err
 		}
 	}
@@ -81,7 +87,13 @@ func (p *Postgres) CreateDatabase(name, user string) error {
 	}
 	defer r.Close()
 	if !r.Next() {
-		if _, err := p.conn.Query("CREATE DATABASE $1 WITH OWNER $2", name, user); err != nil {
+		if _, err := p.conn.Query(
+			fmt.Sprintf(
+				"CREATE DATABASE %s WITH OWNER %s",
+				pq.QuoteIdentifier(name),
+				pq.QuoteIdentifier(user),
+			),
+		); err != nil {
 			return err
 		}
 	}
