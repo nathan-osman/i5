@@ -9,6 +9,7 @@ require (
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/flosch/pongo2 v0.0.0-20190707114632-bbf5a6c351f4
+	github.com/go-sql-driver/mysql v1.4.1
 	github.com/gorilla/mux v1.7.3
 	github.com/lib/pq v1.2.0
 	github.com/mholt/certmagic v0.8.3

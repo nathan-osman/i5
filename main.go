@@ -51,6 +51,34 @@ func main() {
 			Usage:  "HTTPS address to listen on",
 		},
 		cli.BoolFlag{
+			Name:   "mysql",
+			EnvVar: "MYSQL",
+			Usage:  "connect to MySQL",
+		},
+		cli.IntFlag{
+			Name:   "mysql-port",
+			Value:  3306,
+			EnvVar: "MYSQL_PORT",
+			Usage:  "port for MySQL server",
+		},
+		cli.StringFlag{
+			Name:   "mysql-host",
+			Value:  "mysql",
+			EnvVar: "MYSQL_HOST",
+			Usage:  "hostname of MySQL server",
+		},
+		cli.StringFlag{
+			Name:   "mysql-user",
+			Value:  "root",
+			EnvVar: "MYSQL_USER",
+			Usage:  "username for connecting to MySQL",
+		},
+		cli.StringFlag{
+			Name:   "mysql-password",
+			EnvVar: "MYSQL_PASSWORD",
+			Usage:  "password for connecting to MySQL",
+		},
+		cli.BoolFlag{
 			Name:   "postgres",
 			EnvVar: "POSTGRES",
 			Usage:  "connect to PostgreSQL",
@@ -112,6 +140,20 @@ func main() {
 
 		// Create the database manager
 		dbman := db.NewManager()
+
+		// Connect to MySQL if requested
+		if c.Bool("mysql") {
+			msql, err := db.NewMySQL(
+				c.String("mysql-host"),
+				c.Int("mysql-port"),
+				c.String("mysql-user"),
+				c.String("mysql-password"),
+			)
+			if err != nil {
+				return err
+			}
+			dbman.Register(msql)
+		}
 
 		// Connect to PostgreSQL if requested
 		if c.Bool("postgres") {
