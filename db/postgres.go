@@ -38,7 +38,7 @@ func NewPostgres(host string, port int, user, password string) (*Postgres, error
 	}
 	p := &Postgres{
 		conn: c,
-		log:  logrus.WithField("context", "conman"),
+		log:  logrus.WithField("context", "postgres"),
 	}
 	if err := p.conn.QueryRow("SHOW server_version").
 		Scan(&p.version); err != nil {
