@@ -24,6 +24,7 @@ func NewMySQL(host string, port int, user, password string) (*MySQL, error) {
 	cfg.Passwd = password
 	cfg.Net = "tcp"
 	cfg.Addr = fmt.Sprintf("%s:%d", host, port)
+	cfg.InterpolateParams = true
 	c, err := sql.Open("mysql", cfg.FormatDSN())
 	if err != nil {
 		return nil, err
@@ -54,7 +55,7 @@ func (m *MySQL) Version() string {
 
 func (m *MySQL) CreateUser(user, password string) error {
 	if _, err := m.conn.Query(
-		"CREATE USER IF NOT EXISTS $1 IDENTIFIED BY $2",
+		"CREATE USER IF NOT EXISTS ? IDENTIFIED BY ?",
 		user,
 		password,
 	); err != nil {
@@ -64,6 +65,23 @@ func (m *MySQL) CreateUser(user, password string) error {
 }
 
 func (m *MySQL) CreateDatabase(name, user string) error {
+	if _, err := m.conn.Query(
+		fmt.Sprintf(
+			"CREATE DATABASE IF NOT EXISTS `%s`",
+			name,
+		),
+	); err != nil {
+		return err
+	}
+	if _, err := m.conn.Query(
+		fmt.Sprintf(
+			"GRANT ALL PRIVILEGES ON `%s`.* TO ?",
+			name,
+		),
+		user,
+	); err != nil {
+		return err
+	}
 	return nil
 }
 
