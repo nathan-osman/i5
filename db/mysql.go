@@ -53,9 +53,11 @@ func (m *MySQL) Version() string {
 	return m.version
 }
 
+// TODO: the "IDENTIFIED WITH..." is for compatibility with mysqli
+
 func (m *MySQL) CreateUser(user, password string) error {
 	if _, err := m.conn.Query(
-		"CREATE USER IF NOT EXISTS ? IDENTIFIED BY ?",
+		"CREATE USER IF NOT EXISTS ? IDENTIFIED WITH mysql_native_password BY ?",
 		user,
 		password,
 	); err != nil {
