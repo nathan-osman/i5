@@ -9,6 +9,7 @@
 FROM node:latest
 ADD ui /src
 WORKDIR /src
+RUN npm install
 RUN npm run build
 
 # Secondly, compile the Go binary
