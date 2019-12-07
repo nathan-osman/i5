@@ -24,8 +24,8 @@ func New(cfg *Config) *dockmon.Container {
 		conman: cfg.Conman,
 		router: mux.NewRouter(),
 	}
-	s.router.PathPrefix("/static").Handler(
-		http.StripPrefix("/static", http.FileServer(assets.Assets)),
+	s.router.PathPrefix("/static/").Handler(
+		http.StripPrefix("/static/", http.FileServer(assets.Assets)),
 	)
 	return &dockmon.Container{
 		Domains:  []string{cfg.Domain},
