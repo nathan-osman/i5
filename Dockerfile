@@ -6,7 +6,7 @@
 # The server binary embeds the UI.
 
 # First, build the JavaScript UI
-FROM npm:latest
+FROM node:latest
 ADD ui /src
 WORKDIR /src
 RUN npm run build
