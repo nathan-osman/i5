@@ -15,3 +15,31 @@ i5 is a reverse proxy for web services running in Docker.
 - Automatically obtains TLS certificates and redirects HTTP traffic
 - Creates and initializes MySQL and PostgreSQL databases on-demand
 - Runs within its own Docker container and requires very little configuration
+
+### Building the App
+
+i5 must be built in two steps.
+
+#### Building the UI
+
+The web interface uses [React](https://reactjs.org/) and must be built with npm. This can be done by running the following command in the `ui/` directory:
+
+```shell
+npm run build
+```
+
+The resulting files can be found in `ui/build/`.
+
+#### Compiling the Application
+
+The application is written in [Go](https://golang.org/). Prior to compilation, the user interface files from the previous step need to be prepared for embedding in the executable. This is accomplished by running the following command in the source root directory:
+
+```shell
+go generate
+```
+
+Now the application can be compiled with:
+
+```shell
+go build
+```
