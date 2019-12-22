@@ -3,7 +3,7 @@ package status
 import (
 	"net/http"
 
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi"
 	"github.com/nathan-osman/i5/conman"
 	"github.com/nathan-osman/i5/db"
 	"github.com/nathan-osman/i5/dockmon"
@@ -14,7 +14,7 @@ import (
 type Status struct {
 	conman *conman.Conman
 	dbman  *db.Manager
-	router *mux.Router
+	router *chi.Mux
 }
 
 // New creates a new status container.
@@ -22,11 +22,9 @@ func New(cfg *Config) *dockmon.Container {
 	s := &Status{
 		dbman:  cfg.Dbman,
 		conman: cfg.Conman,
-		router: mux.NewRouter(),
+		router: chi.NewRouter(),
 	}
-	s.router.PathPrefix("/").Handler(
-		http.FileServer(ui.Assets),
-	)
+	s.router.Handle("/*", http.FileServer(ui.Assets))
 	return &dockmon.Container{
 		Domains:  []string{cfg.Domain},
 		Insecure: cfg.Insecure,

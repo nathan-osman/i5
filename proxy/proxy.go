@@ -6,7 +6,7 @@ import (
 	"net/http/httputil"
 	"net/url"
 
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi"
 	"github.com/nathan-osman/i5/util"
 )
 
@@ -23,7 +23,7 @@ type Mountpoint struct {
 // Proxy acts as a reverse proxy and static file server for a specific site.
 type Proxy struct {
 	addr   string
-	router *mux.Router
+	router *chi.Mux
 }
 
 func applyBranding(header http.Header) {
@@ -68,15 +68,16 @@ func (p *Proxy) handle(w http.ResponseWriter, r *http.Request) {
 func New(cfg *Config) *Proxy {
 	p := &Proxy{
 		addr:   cfg.Addr,
-		router: mux.NewRouter(),
+		router: chi.NewRouter(),
 	}
 	for _, m := range cfg.Mountpoints {
-		p.router.PathPrefix(m.Path).Handler(
+		p.router.Handle(
+			m.Path+"*",
 			brandingHandler(http.FileServer(http.Dir(m.Dir))),
 		)
 	}
 	if p.addr != "" {
-		p.router.PathPrefix("/").HandlerFunc(p.handle)
+		p.router.HandleFunc("/*", p.handle)
 	}
 	return p
 }
