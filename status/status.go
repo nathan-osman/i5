@@ -4,10 +4,10 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/nathan-osman/i5/assets"
 	"github.com/nathan-osman/i5/conman"
 	"github.com/nathan-osman/i5/db"
 	"github.com/nathan-osman/i5/dockmon"
+	"github.com/nathan-osman/i5/ui"
 )
 
 // Status provides a set of endpoints that display status information.
@@ -24,8 +24,8 @@ func New(cfg *Config) *dockmon.Container {
 		conman: cfg.Conman,
 		router: mux.NewRouter(),
 	}
-	s.router.PathPrefix("/static/").Handler(
-		http.StripPrefix("/static/", http.FileServer(assets.Assets)),
+	s.router.PathPrefix("/").Handler(
+		http.FileServer(ui.Assets),
 	)
 	return &dockmon.Container{
 		Domains:  []string{cfg.Domain},

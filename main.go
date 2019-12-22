@@ -1,4 +1,4 @@
-//go:generate go run assets/generate.go
+//go:generate go run ui/generate.go
 
 package main
 
