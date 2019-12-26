@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/go-chi/chi"
-	"github.com/go-chi/render"
 	"github.com/nathan-osman/i5/conman"
 	"github.com/nathan-osman/i5/db"
 	"github.com/nathan-osman/i5/dockmon"
@@ -29,7 +28,6 @@ func New(cfg *Config) *dockmon.Container {
 	router := chi.NewRouter()
 	router.Mount("/", http.FileServer(ui.Assets))
 	router.Route("/api", func(r chi.Router) {
-		r.Use(render.SetContentType(render.ContentTypeJSON))
 		r.Get("/status", s.getStatus)
 		r.Get("/containers", s.getContainers)
 	})
