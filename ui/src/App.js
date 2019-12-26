@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
 
-import ContainerTable from './components/ContainerTable';
+import ContainerList from './components/ContainerList';
 
 function App() {
   return (
@@ -15,7 +15,7 @@ function App() {
       </div>
 
       <div className="container">
-        <ContainerTable containers={[]} />
+        <ContainerList />
       </div>
 
     </div>

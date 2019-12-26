@@ -1,0 +1,37 @@
+$border-radius: 4px;
+
+.ContainerList {
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+
+  .header {
+    background-color: #333333;
+    border-top-left-radius: $border-radius;
+    border-top-right-radius: $border-radius;
+    color: white;
+    display: flex;
+  }
+
+  .body {
+    .row {
+      display: flex;
+
+      &:nth-child(odd) { background-color: white; }
+      &:last-child {
+        border-bottom-left-radius: $border-radius;
+        border-bottom-right-radius: $border-radius;
+      }
+    }
+  }
+
+  .cell {
+    padding: 12px 24px;
+
+    &.name { flex-grow: 1; }
+    &.status {
+      text-align: right;
+
+      &.running { color: #070; }
+      &.stopped { color: #900; }
+    }
+  }
+}
