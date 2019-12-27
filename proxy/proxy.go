@@ -73,7 +73,12 @@ func New(cfg *Config) *Proxy {
 	for _, m := range cfg.Mountpoints {
 		p.router.Handle(
 			m.Path+"*",
-			brandingHandler(http.FileServer(http.Dir(m.Dir))),
+			brandingHandler(
+				http.StripPrefix(
+					m.Path,
+					http.FileServer(http.Dir(m.Dir)),
+				),
+			),
 		)
 	}
 	if p.addr != "" {
