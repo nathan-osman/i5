@@ -25,7 +25,7 @@ export default class ContainerList extends React.Component {
           {this.state.containers.map(container => (
             <div className="row">
               <div className="cell name">
-                <a href="http://{container.domain}">
+                <a href={"http://" + container.domain}>
                   {container.name}
                 </a>
               </div>
