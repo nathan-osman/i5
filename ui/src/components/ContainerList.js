@@ -24,7 +24,11 @@ export default class ContainerList extends React.Component {
         <div className="body">
           {this.state.containers.map(container => (
             <div className="row">
-              <div className="cell name">{container.name}</div>
+              <div className="cell name">
+                <a href="http://{container.domain}">
+                  {container.name}
+                </a>
+              </div>
               {container.running ?
                 <div className="cell status running">RUNNING</div> :
                 <div className="cell status stopped">STOPPED</div>}

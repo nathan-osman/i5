@@ -22,12 +22,9 @@ func (s *Status) getStatus(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-type containerResponse struct {
-	Name    string `json:"name"`
-	Running bool   `json:"running"`
-}
+type infoResponse struct{ *conman.Info }
 
-func (c *containerResponse) Render(w http.ResponseWriter, r *http.Request) error {
+func (i *infoResponse) Render(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
@@ -44,10 +41,7 @@ func (s *Status) getContainers(w http.ResponseWriter, r *http.Request) {
 	)
 	sort.Sort(byName(containers))
 	for _, c := range containers {
-		containerList = append(containerList, &containerResponse{
-			Name:    c.Name,
-			Running: c.Running,
-		})
+		containerList = append(containerList, &infoResponse{c})
 	}
 	render.RenderList(w, r, containerList)
 }
