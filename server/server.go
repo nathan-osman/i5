@@ -7,30 +7,32 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/mholt/certmagic"
 	"github.com/nathan-osman/i5/conman"
 	"github.com/nathan-osman/i5/dockmon"
 	"github.com/nathan-osman/i5/proxy"
 	"github.com/nathan-osman/i5/util"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/crypto/acme"
+	"golang.org/x/crypto/acme/autocert"
 )
 
 const (
 	errContainerNotRunning = "container serving this domain is not running"
 	errInvalidDomainName   = "invalid domain name specified"
+
+	letsEncryptStagingURL = "https://acme-staging-v02.api.letsencrypt.org/directory"
 )
 
 // Server listens for incoming connections and routes them accordingly.
 type Server struct {
 	log         *logrus.Entry
-	cfg         *certmagic.Config
 	conman      *conman.Conman
 	httpServer  *http.Server
 	httpsServer *http.Server
 }
 
-func (s *Server) decide(name string) error {
-	_, err := s.conman.Lookup(name)
+func (s *Server) decide(ctx context.Context, host string) error {
+	_, err := s.conman.Lookup(host)
 	return err
 }
 
@@ -76,7 +78,7 @@ func (s *Server) handleHTTPS(w http.ResponseWriter, r *http.Request) {
 // New creates a new server from the provided configuration.
 func New(cfg *Config) (*Server, error) {
 
-	// Create the server and certmagic config
+	// Create the server and autocert config
 	var (
 		s = &Server{
 			log:         logrus.WithField("context", "server"),
@@ -84,43 +86,32 @@ func New(cfg *Config) (*Server, error) {
 			httpServer:  &http.Server{},
 			httpsServer: &http.Server{},
 		}
-		cmCfg = certmagic.Config{
-			Agreed: true,
-			Email:  cfg.Email,
-			OnDemand: &certmagic.OnDemandConfig{
-				DecisionFunc: s.decide,
-			},
+		manager = autocert.Manager{
+			Prompt:     autocert.AcceptTOS,
+			Cache:      autocert.DirCache(cfg.StorageDir),
+			HostPolicy: s.decide,
+			Email:      cfg.Email,
 		}
 	)
 
-	// Finish initializing the config (the fields cannot be set inline)
+	// If debug mode is enabled, use the staging URL
 	if cfg.Debug {
-		cmCfg.CA = certmagic.LetsEncryptStagingCA
+		manager.Client = &acme.Client{
+			DirectoryURL: "letsEncryptStagingURL",
+		}
 	}
-	if len(cfg.StorageDir) != 0 {
-		cmCfg.Storage = &certmagic.FileStorage{Path: cfg.StorageDir}
-	}
-	s.cfg = certmagic.New(
-		certmagic.NewCache(
-			certmagic.CacheOptions{
-				GetConfigForCert: func(certmagic.Certificate) (certmagic.Config, error) {
-					return certmagic.Default, nil
-				},
-			},
-		),
-		cmCfg,
-	)
-	s.httpServer.Handler = s.cfg.HTTPChallengeHandler(http.HandlerFunc(s.handleHTTP))
+
+	s.httpServer.Handler = manager.HTTPHandler(http.HandlerFunc(s.handleHTTP))
 	s.httpsServer.Handler = http.HandlerFunc(s.handleHTTPS)
 
 	// Create the HTTP listener
-	httpLn, err := net.Listen("tcp", cfg.HTTPAddr)
+	httpListener, err := net.Listen("tcp", cfg.HTTPAddr)
 	if err != nil {
 		return nil, err
 	}
 
 	// Create the HTTPS listener
-	httpsLn, err := tls.Listen("tcp", cfg.HTTPSAddr, s.cfg.TLSConfig())
+	httpsListener, err := tls.Listen("tcp", cfg.HTTPSAddr, manager.TLSConfig())
 	if err != nil {
 		return nil, err
 	}
@@ -128,13 +119,13 @@ func New(cfg *Config) (*Server, error) {
 	// Launch goroutines for each of the servers
 	go func() {
 		s.log.Info("listening for HTTP connections...")
-		if err := s.httpServer.Serve(httpLn); err != http.ErrServerClosed {
+		if err := s.httpServer.Serve(httpListener); err != http.ErrServerClosed {
 			s.log.Errorf("HTTP: %s", err)
 		}
 	}()
 	go func() {
 		s.log.Info("listening for HTTPS connections...")
-		if err := s.httpsServer.Serve(httpsLn); err != http.ErrServerClosed {
+		if err := s.httpsServer.Serve(httpsListener); err != http.ErrServerClosed {
 			s.log.Errorf("HTTPS: %s", err)
 		}
 	}()
