@@ -97,7 +97,7 @@ func New(cfg *Config) (*Server, error) {
 	// If debug mode is enabled, use the staging URL
 	if cfg.Debug {
 		manager.Client = &acme.Client{
-			DirectoryURL: "letsEncryptStagingURL",
+			DirectoryURL: letsEncryptStagingURL,
 		}
 	}
 
