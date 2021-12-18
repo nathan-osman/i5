@@ -26,7 +26,7 @@ func New(cfg *Config) *dockmon.Container {
 		startup: time.Now().Unix(),
 	}
 	router := chi.NewRouter()
-	router.Mount("/", http.FileServer(ui.Assets))
+	router.Mount("/", http.FileServer(http.FS(ui.Content)))
 	router.Route("/api", func(r chi.Router) {
 		r.Get("/status", s.getStatus)
 		r.Get("/containers", s.getContainers)
