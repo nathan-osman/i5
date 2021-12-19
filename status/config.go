@@ -11,6 +11,8 @@ type Config struct {
 	Domain string
 	// Insecure allows insecure connections to the server.
 	Insecure bool
+	// StorageDir indicates where the SQLite database should be stored
+	StorageDir string
 	// Conman is a pointer to a Conman instance.
 	Conman *conman.Conman
 	// Dbman is a pointer to a db.Manager instance.

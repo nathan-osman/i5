@@ -15,4 +15,6 @@ require (
 	github.com/urfave/cli v1.22.5
 	golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3
 	google.golang.org/grpc v1.43.0 // indirect
+	gorm.io/driver/sqlite v1.2.6 // indirect
+	gorm.io/gorm v1.22.4
 )

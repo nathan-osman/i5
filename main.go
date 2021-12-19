@@ -176,12 +176,18 @@ func main() {
 
 		// If a domain name for the internal server was specified, use it
 		if statusDomain := c.String("status-domain"); statusDomain != "" {
-			cm.Add(status.New(&status.Config{
-				Domain:   statusDomain,
-				Insecure: c.Bool("status-insecure"),
-				Conman:   cm,
-				Dbman:    dbman,
-			}))
+			s, err := status.New(&status.Config{
+				Domain:     statusDomain,
+				Insecure:   c.Bool("status-insecure"),
+				StorageDir: c.String("storage-dir"),
+				Conman:     cm,
+				Dbman:      dbman,
+			})
+			if err != nil {
+				return err
+			}
+			defer s.Close()
+			cm.Add(s.Container)
 		}
 
 		// Create the server
