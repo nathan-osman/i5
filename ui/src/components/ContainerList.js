@@ -1,6 +1,6 @@
 import React from 'react';
 import axios from 'axios';
-import './ContainerList.scss';
+import { Table } from 'react-bootstrap';
 
 export default class ContainerList extends React.Component {
   state = {
@@ -16,25 +16,34 @@ export default class ContainerList extends React.Component {
 
   render() {
     return (
-      <div className="ContainerList">
-        <div className="header">
-          <div className="cell name">Name</div>
-          <div className="cell status">Status</div>
-        </div>
-        <div className="body">
-          {this.state.containers.map(container => (
-            <div className="row">
-              <div className="cell name">
-                <a href={"http://" + container.domain}>
-                  {container.name}
-                </a>
-              </div>
-              {container.running ?
-                <div className="cell status running">RUNNING</div> :
-                <div className="cell status stopped">STOPPED</div>}
-            </div>
-          ))}
-        </div>
+      <div>
+        <h1>Containers</h1>
+        <p>
+          The table below lists all of the containers that are currently running in Docker.
+        </p>
+
+        <Table striped>
+          <thead>
+            <th>Name</th>
+            <th>{/* Status */}</th>
+          </thead>
+          <tbody>
+            {this.state.containers.map(container => (
+              <tr>
+                <td>
+                  <a href={"http://" + container.domain}>
+                    {container.name}
+                  </a>
+                </td>
+                <td className="text-end">
+                  {container.running ?
+                    <span class="badge bg-success">Running</span> :
+                    <span class="badge bg-danger">Stopped</span>}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
       </div>
     )
   }
