@@ -18,7 +18,6 @@ ENV CGO_ENABLED=0
 ADD . /src
 COPY --from=0 /src/build /src/ui/build
 WORKDIR /src
-RUN go generate
 RUN go build
 
 # Lastly, create a container with the resultant binary
