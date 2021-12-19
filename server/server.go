@@ -6,6 +6,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"path"
 
 	"github.com/nathan-osman/i5/conman"
 	"github.com/nathan-osman/i5/dockmon"
@@ -88,7 +89,7 @@ func New(cfg *Config) (*Server, error) {
 		}
 		manager = autocert.Manager{
 			Prompt:     autocert.AcceptTOS,
-			Cache:      autocert.DirCache(cfg.StorageDir),
+			Cache:      autocert.DirCache(path.Join(cfg.StorageDir, "certificates")),
 			HostPolicy: s.decide,
 			Email:      cfg.Email,
 		}

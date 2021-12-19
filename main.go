@@ -117,7 +117,7 @@ func main() {
 		cli.StringFlag{
 			Name:   "storage-dir",
 			EnvVar: "STORAGE_DIR",
-			Usage:  "directory for storing certificates",
+			Usage:  "directory for storing files related to i5",
 		},
 	}
 	app.Action = func(c *cli.Context) error {
