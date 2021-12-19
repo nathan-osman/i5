@@ -1,22 +1,19 @@
-import React from 'react';
-import './App.css';
-
+import { Container, Navbar } from 'react-bootstrap';
 import ContainerList from './components/ContainerList';
 
 function App() {
   return (
-    <div className="App">
+    <div>
 
-      {/* Application header */}
-      <div className="App-header">
-        <div className="container">
-          i5 Status
-        </div>
-      </div>
+      <Navbar>
+        <Container>
+          <Navbar.Brand>i5 Status</Navbar.Brand>
+        </Container>
+      </Navbar>
 
-      <div className="container">
+      <Container>
         <ContainerList />
-      </div>
+      </Container>
 
     </div>
   );
