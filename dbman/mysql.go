@@ -1,4 +1,4 @@
-package db
+package dbman
 
 import (
 	"database/sql"

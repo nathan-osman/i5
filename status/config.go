@@ -2,7 +2,7 @@ package status
 
 import (
 	"github.com/nathan-osman/i5/conman"
-	"github.com/nathan-osman/i5/db"
+	"github.com/nathan-osman/i5/dbman"
 )
 
 // Config provides the configuration for the internal status server.
@@ -16,5 +16,5 @@ type Config struct {
 	// Conman is a pointer to a Conman instance.
 	Conman *conman.Conman
 	// Dbman is a pointer to a db.Manager instance.
-	Dbman *db.Manager
+	Dbman *dbman.Manager
 }

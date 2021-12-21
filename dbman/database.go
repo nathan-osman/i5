@@ -1,4 +1,4 @@
-package db
+package dbman
 
 // Database provides a generic interface for working with a database server.
 type Database interface {

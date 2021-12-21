@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/nathan-osman/i5/db"
+	"github.com/nathan-osman/i5/dbman"
 	"github.com/nathan-osman/i5/dockmon"
 	"github.com/nathan-osman/i5/util"
 	"github.com/sirupsen/logrus"
@@ -20,7 +20,7 @@ type Conman struct {
 	log        *logrus.Entry
 	domainMap  util.StringMap
 	eventChan  <-chan *dockmon.Event
-	dbman      *db.Manager
+	dbman      *dbman.Manager
 	closeChan  chan bool
 	closedChan chan bool
 }

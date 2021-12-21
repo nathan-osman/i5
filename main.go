@@ -8,11 +8,11 @@ import (
 
 	"github.com/howeyc/gopass"
 	"github.com/nathan-osman/i5/conman"
-	"github.com/nathan-osman/i5/db"
+	"github.com/nathan-osman/i5/dbman"
 	"github.com/nathan-osman/i5/dockmon"
 	"github.com/nathan-osman/i5/server"
 	"github.com/nathan-osman/i5/status"
-	statusDB "github.com/nathan-osman/i5/status/db"
+	"github.com/nathan-osman/i5/status/db"
 	"github.com/urfave/cli/v2"
 )
 
@@ -128,7 +128,7 @@ func main() {
 				Action: func(c *cli.Context) error {
 
 					// Open the local database
-					d, err := statusDB.New(c.String("storage-dir"))
+					d, err := db.New(c.String("storage-dir"))
 					if err != nil {
 						return err
 					}
@@ -147,7 +147,7 @@ func main() {
 					}
 
 					// Create the user and set the password
-					u := &statusDB.User{Username: username}
+					u := &db.User{Username: username}
 					if err := u.SetPassword(string(p)); err != nil {
 						return err
 					}
@@ -175,11 +175,11 @@ func main() {
 			defer dm.Close()
 
 			// Create the database manager
-			dbman := db.NewManager()
+			d := dbman.NewManager()
 
 			// Connect to MySQL if requested
 			if c.Bool("mysql") {
-				msql, err := db.NewMySQL(
+				msql, err := dbman.NewMySQL(
 					c.String("mysql-host"),
 					c.Int("mysql-port"),
 					c.String("mysql-user"),
@@ -188,12 +188,12 @@ func main() {
 				if err != nil {
 					return err
 				}
-				dbman.Register(msql)
+				d.Register(msql)
 			}
 
 			// Connect to PostgreSQL if requested
 			if c.Bool("postgres") {
-				psql, err := db.NewPostgres(
+				psql, err := dbman.NewPostgres(
 					c.String("postgres-host"),
 					c.Int("postgres-port"),
 					c.String("postgres-user"),
@@ -202,13 +202,13 @@ func main() {
 				if err != nil {
 					return err
 				}
-				dbman.Register(psql)
+				d.Register(psql)
 			}
 
 			// Create the container manager
 			cm := conman.New(&conman.Config{
 				EventChan: dm.EventChan,
-				Dbman:     dbman,
+				Dbman:     d,
 			})
 			defer cm.Close()
 
@@ -219,7 +219,7 @@ func main() {
 					Insecure:   c.Bool("status-insecure"),
 					StorageDir: c.String("storage-dir"),
 					Conman:     cm,
-					Dbman:      dbman,
+					Dbman:      d,
 				})
 				if err != nil {
 					return err

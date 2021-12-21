@@ -6,9 +6,9 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/nathan-osman/i5/conman"
-	"github.com/nathan-osman/i5/db"
+	"github.com/nathan-osman/i5/dbman"
 	"github.com/nathan-osman/i5/dockmon"
-	statusDB "github.com/nathan-osman/i5/status/db"
+	"github.com/nathan-osman/i5/status/db"
 	"github.com/nathan-osman/i5/ui"
 )
 
@@ -16,14 +16,14 @@ import (
 type Status struct {
 	Container *dockmon.Container
 	conman    *conman.Conman
-	dbman     *db.Manager
-	conn      *statusDB.Conn
+	dbman     *dbman.Manager
+	conn      *db.Conn
 	startup   int64
 }
 
 // New creates a new status container.
 func New(cfg *Config) (*Status, error) {
-	d, err := statusDB.New(cfg.StorageDir)
+	d, err := db.New(cfg.StorageDir)
 	if err != nil {
 		return nil, err
 	}
