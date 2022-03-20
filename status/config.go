@@ -7,6 +7,8 @@ import (
 
 // Config provides the configuration for the internal status server.
 type Config struct {
+	// Debug indicates that debugging is enabled.
+	Debug bool
 	// Domain indicates the domain that should be used for the container.
 	Domain string
 	// Insecure allows insecure connections to the server.

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/go-chi/chi"
+	"github.com/go-chi/cors"
 	"github.com/nathan-osman/i5/conman"
 	"github.com/nathan-osman/i5/dbman"
 	"github.com/nathan-osman/i5/dockmon"
@@ -36,6 +37,13 @@ func New(cfg *Config) (*Status, error) {
 	router := chi.NewRouter()
 	router.Mount("/", http.FileServer(http.FS(ui.Content)))
 	router.Route("/api", func(r chi.Router) {
+		if cfg.Debug {
+			r.Use(cors.Handler(
+				cors.Options{
+					AllowedOrigins: []string{"http://localhost:3000"},
+				},
+			))
+		}
 		r.Get("/status", s.getStatus)
 		r.Get("/containers", s.getContainers)
 	})

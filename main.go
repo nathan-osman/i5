@@ -215,6 +215,7 @@ func main() {
 			// If a domain name for the internal server was specified, use it
 			if statusDomain := c.String("status-domain"); statusDomain != "" {
 				s, err := status.New(&status.Config{
+					Debug:      c.Bool("debug"),
 					Domain:     statusDomain,
 					Insecure:   c.Bool("status-insecure"),
 					StorageDir: c.String("storage-dir"),
