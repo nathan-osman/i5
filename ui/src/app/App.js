@@ -1,5 +1,5 @@
 import { Container, Navbar } from 'react-bootstrap';
-import ContainerList from './components/ContainerList';
+import ContainerList from '../components/ContainerList';
 
 function App() {
   return (
