@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom'
+import { Outlet } from 'react-router-dom';
 
 import Header from '../components/Header';
 
@@ -10,9 +10,11 @@ const App = () => {
       <Header />
 
       {/* Page content */}
-      <Outlet />
+      <div className="container mt-2">
+        <Outlet />
+      </div>
 
-    </div>
+    </div >
   );
 };
 

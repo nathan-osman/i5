@@ -1,50 +1,59 @@
-import React from 'react';
 import axios from 'axios';
-import { Table } from 'react-bootstrap';
+import { useCallback, useEffect, useState } from 'react';
 
-export default class ContainerList extends React.Component {
-  state = {
-    containers: []
-  }
+const ContainerList = () => {
 
-  componentDidMount() {
-    axios.get('/api/containers')
-      .then(res => {
-        this.setState({ containers: res.data })
-      })
-  }
+  const [containers, setContainers] = useState([]);
 
-  render() {
-    return (
-      <div>
-        <h1>Containers</h1>
-        <p>
-          The table below lists all of the containers that are currently running in Docker.
-        </p>
+  const reload = useCallback(
+    async () => {
+      try {
+        setContainers(
+          (await axios.get('/api/containers')).data
+        );
+      } catch (e) {
 
-        <Table striped>
-          <thead>
+        // TODO: display error
+      }
+    },
+    []
+  );
+
+  useEffect(() => { reload(); }, [reload]);
+
+  return (
+    <div>
+      <h1>Containers</h1>
+      <p>
+        The table below lists all of the containers that are currently running in Docker.
+      </p>
+
+      <table className="table table-striped">
+        <thead>
+          <tr>
             <th>Name</th>
             <th>{/* Status */}</th>
-          </thead>
-          <tbody>
-            {this.state.containers.map(container => (
-              <tr>
-                <td>
-                  <a href={"http://" + container.domain}>
-                    {container.name}
-                  </a>
-                </td>
-                <td className="text-end">
-                  {container.running ?
-                    <span class="badge bg-success">Running</span> :
-                    <span class="badge bg-danger">Stopped</span>}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-      </div>
-    )
-  }
-}
+          </tr>
+        </thead>
+        <tbody>
+          {containers.map(container => (
+            <tr key={container.name}>
+              <td>
+                <a href={"http://" + container.domain}>
+                  {container.name}
+                </a>
+              </td>
+              <td className="text-end">
+                {container.running ?
+                  <span className="badge bg-success">Running</span> :
+                  <span className="badge bg-danger">Stopped</span>}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+export default ContainerList;
