@@ -14,13 +14,10 @@ RUN npm run build
 
 # Secondly, compile the Go binary
 FROM golang:latest
+ENV CGO_ENABLED=0
 ADD . /src
 COPY --from=0 /src/build /src/ui/build
 WORKDIR /src
-# go-sqlite3 requires GCC during compilation, so take care of that before
-# disable CGO for the rest of the build
-RUN go install
-ENV CGO_ENABLED=0
 RUN go build
 
 # Lastly, create a container with the resultant binary
