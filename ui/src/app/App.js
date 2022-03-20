@@ -1,22 +1,19 @@
-import { Container, Navbar } from 'react-bootstrap';
-import ContainerList from '../components/ContainerList';
+import { Outlet } from 'react-router-dom'
 
-function App() {
+import Header from '../components/Header';
+
+const App = () => {
   return (
     <div>
 
-      <Navbar bg="dark" variant="dark">
-        <Container>
-          <Navbar.Brand>i5 Status</Navbar.Brand>
-        </Container>
-      </Navbar>
+      {/* Header */}
+      <Header />
 
-      <Container className="mt-3">
-        <ContainerList />
-      </Container>
+      {/* Page content */}
+      <Outlet />
 
     </div>
   );
-}
+};
 
 export default App;
