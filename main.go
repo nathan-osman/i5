@@ -12,7 +12,6 @@ import (
 	"github.com/nathan-osman/i5/dockmon"
 	"github.com/nathan-osman/i5/server"
 	"github.com/nathan-osman/i5/status"
-	"github.com/nathan-osman/i5/status/db"
 	"github.com/urfave/cli/v2"
 )
 
@@ -127,13 +126,6 @@ func main() {
 				Usage: "create a new user account",
 				Action: func(c *cli.Context) error {
 
-					// Open the local database
-					d, err := db.New(c.String("storage-dir"))
-					if err != nil {
-						return err
-					}
-					defer d.Close()
-
 					// Prompt for the username
 					var username string
 					fmt.Print("Username? ")
@@ -146,15 +138,13 @@ func main() {
 						return err
 					}
 
-					// Create the user and set the password
-					u := &db.User{Username: username}
-					if err := u.SetPassword(string(p)); err != nil {
-						return err
-					}
-
-					// Save the user to the database
-					if err := d.Save(u).Error; err != nil {
-						return err
+					// Create the user
+					if err := status.CreateUser(
+						c.String("storage-dir"),
+						username,
+						string(p),
+					); err != nil {
+						return nil
 					}
 
 					fmt.Println("New user created successfully.")

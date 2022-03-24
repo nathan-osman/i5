@@ -9,8 +9,8 @@ import (
 	"github.com/nathan-osman/i5/conman"
 	"github.com/nathan-osman/i5/dbman"
 	"github.com/nathan-osman/i5/dockmon"
-	"github.com/nathan-osman/i5/status/db"
 	"github.com/nathan-osman/i5/ui"
+	bolt "go.etcd.io/bbolt"
 )
 
 // Status provides a set of endpoints that display status information.
@@ -18,20 +18,20 @@ type Status struct {
 	Container *dockmon.Container
 	conman    *conman.Conman
 	dbman     *dbman.Manager
-	conn      *db.Conn
+	db        *bolt.DB
 	startup   int64
 }
 
 // New creates a new status container.
 func New(cfg *Config) (*Status, error) {
-	d, err := db.New(cfg.StorageDir)
+	d, err := openDB(cfg.StorageDir)
 	if err != nil {
 		return nil, err
 	}
 	s := &Status{
 		conman:  cfg.Conman,
 		dbman:   cfg.Dbman,
-		conn:    d,
+		db:      d,
 		startup: time.Now().Unix(),
 	}
 	router := chi.NewRouter()
@@ -58,5 +58,5 @@ func New(cfg *Config) (*Status, error) {
 
 // Close shuts down the status server.
 func (s *Status) Close() {
-	s.conn.Close()
+	s.db.Close()
 }
