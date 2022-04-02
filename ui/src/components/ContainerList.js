@@ -32,6 +32,7 @@ const ContainerList = () => {
         <thead>
           <tr>
             <th>Name</th>
+            <th>Domain</th>
             <th>{/* Status */}</th>
           </tr>
         </thead>
@@ -43,6 +44,7 @@ const ContainerList = () => {
                   {container.name}
                 </a>
               </td>
+              <td className="text-muted">{container.domain}</td>
               <td className="text-end">
                 {container.running ?
                   <span className="badge bg-success">Running</span> :
