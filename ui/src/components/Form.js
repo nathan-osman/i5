@@ -13,7 +13,7 @@ const Form = ({ url, onData, ...props }) => {
   const [errorMessage, setErrorMessage] = useState(null);
 
   useEffect(() => {
-    $('input', formElement.current).prop('disabled', isLoading);
+    $('input,button', formElement.current).prop('disabled', isLoading);
   }, [isLoading]);
 
   function handleSubmit(e) {

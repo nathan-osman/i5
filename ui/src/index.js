@@ -12,7 +12,10 @@ import PrivateRoute from './auth/util/PrivateRoute';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.css';
 
-axios.defaults.baseURL = process.env.REACT_APP_API_PREFIX;
+const apiPrefix = process.env.REACT_APP_API_PREFIX;
+
+axios.defaults.baseURL = apiPrefix;
+axios.defaults.withCredentials = Boolean(apiPrefix);
 
 ReactDOM.render(
   <React.StrictMode>

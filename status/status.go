@@ -50,8 +50,9 @@ func New(cfg *Config) (*Status, error) {
 	if cfg.Debug {
 		r.Use(
 			cors.New(cors.Config{
-				AllowOrigins: []string{"http://localhost:3000"},
-				AllowHeaders: []string{"content-type"},
+				AllowOrigins:     []string{"http://localhost:3000"},
+				AllowHeaders:     []string{"content-type"},
+				AllowCredentials: true,
 			}),
 		)
 	}
