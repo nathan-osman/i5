@@ -662,6 +662,8 @@ github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f/go.mod h1:qRW
 github.com/mxk/go-flowrate v0.0.0-20140419014527-cca7078d478f/go.mod h1:ZdcZmHo+o7JKHSa8/e818NopupXU1YMK5fe1lsApnBw=
 github.com/nathan-osman/go-herald v0.0.0-20211113192421-147eade086ce h1:+TN1c0NbPi7M0br5galb+NPWwNRr0LTvDFLwskYV8bY=
 github.com/nathan-osman/go-herald v0.0.0-20211113192421-147eade086ce/go.mod h1:kUF1rTnPdC978XNvf/KtCPXTSjWX67BBjwDI7/QgdWk=
+github.com/nathan-osman/go-herald v0.0.0-20220406061515-534bf8071299 h1:6KLTA8WwYYqdBFh7stY5ZczPZ1p8qWBwWlGYbXMKMM8=
+github.com/nathan-osman/go-herald v0.0.0-20220406061515-534bf8071299/go.mod h1:kUF1rTnPdC978XNvf/KtCPXTSjWX67BBjwDI7/QgdWk=
 github.com/ncw/swift v1.0.47/go.mod h1:23YIA4yWVnGwv2dQlN4bB7egfYX6YLn0Yo/S6zZO/ZM=
 github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e/go.mod h1:zD1mROLANZcx1PVRCS0qkT7pwLkGfwJo4zjcN/Tysno=
 github.com/nxadm/tail v1.4.4/go.mod h1:kenIhsEOeOJmVchQTgglprH7qJGnHDVpk1VPCcaMI8A=

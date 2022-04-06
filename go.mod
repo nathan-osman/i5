@@ -14,7 +14,7 @@ require (
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/howeyc/gopass v0.0.0-20210920133722-c8aef6fb66ef
 	github.com/lib/pq v1.10.4
-	github.com/nathan-osman/go-herald v0.0.0-20211113192421-147eade086ce
+	github.com/nathan-osman/go-herald v0.0.0-20220406061515-534bf8071299
 	github.com/opencontainers/image-spec v1.0.2 // indirect
 	github.com/sirupsen/logrus v1.8.1
 	github.com/urfave/cli/v2 v2.4.0
