@@ -12,8 +12,8 @@ const RequestTicker = () => {
     );
     websocket.onmessage = (e) => {
       const data = JSON.parse(e.data);
-      setRequests([
-        ...request,
+      setRequests(r => [
+        ...r,
         {
           ...data.data,
           time: new Date()
@@ -23,7 +23,7 @@ const RequestTicker = () => {
     return () => {
       websocket.close();
     };
-  });
+  }, []);
 
   return (
     <div>
