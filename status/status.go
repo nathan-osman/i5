@@ -9,6 +9,7 @@ import (
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
+	"github.com/nathan-osman/go-herald"
 	"github.com/nathan-osman/i5/conman"
 	"github.com/nathan-osman/i5/dbman"
 	"github.com/nathan-osman/i5/dockmon"
@@ -16,7 +17,11 @@ import (
 	bolt "go.etcd.io/bbolt"
 )
 
-const sessionName = "status"
+const (
+	sessionName = "status"
+
+	messageTypeRequest = "request"
+)
 
 // Status provides a set of endpoints that display status information.
 type Status struct {
@@ -24,6 +29,7 @@ type Status struct {
 	conman    *conman.Conman
 	dbman     *dbman.Manager
 	db        *bolt.DB
+	herald    *herald.Herald
 	startup   int64
 }
 
@@ -39,10 +45,12 @@ func New(cfg *Config) (*Status, error) {
 			conman:  cfg.Conman,
 			dbman:   cfg.Dbman,
 			db:      d,
+			herald:  herald.New(),
 			startup: time.Now().Unix(),
 		}
 		store = cookie.NewStore([]byte(cfg.Key))
 	)
+	s.herald.Start()
 	store.Options(sessions.Options{
 		Path:     "/",
 		HttpOnly: true,
@@ -70,6 +78,7 @@ func New(cfg *Config) (*Status, error) {
 		api.Use(requireLogin)
 		api.GET("/status", s.apiStatus)
 		api.GET("/containers", s.apiContainers)
+		api.GET("/ws", s.webSocket)
 	}
 	s.Container = &dockmon.Container{
 		Domains:  []string{cfg.Domain},
@@ -80,7 +89,25 @@ func New(cfg *Config) (*Status, error) {
 	return s, nil
 }
 
+type messageRequest struct {
+	Host string `json:"host"`
+	Path string `json:"path"`
+}
+
+func (s *Status) BroadcastRequest(r *http.Request) {
+	m, err := herald.NewMessage(messageTypeRequest, &messageRequest{
+		Host: r.Host,
+		Path: r.URL.Path,
+	})
+	if err != nil {
+		// TODO: determine if this is an appropriate response
+		return
+	}
+	s.herald.Send(m, nil)
+}
+
 // Close shuts down the status server.
 func (s *Status) Close() {
+	s.herald.Close()
 	s.db.Close()
 }

@@ -207,6 +207,8 @@ func main() {
 			})
 			defer cm.Close()
 
+			var hook server.HookFn
+
 			// If a domain name for the internal server was specified, use it
 			if statusDomain := c.String("status-domain"); statusDomain != "" {
 				s, err := status.New(&status.Config{
@@ -223,6 +225,7 @@ func main() {
 				}
 				defer s.Close()
 				cm.Add(s.Container)
+				hook = s.BroadcastRequest
 			}
 
 			// Create the server
@@ -232,6 +235,7 @@ func main() {
 				HTTPAddr:   c.String("http-addr"),
 				HTTPSAddr:  c.String("https-addr"),
 				StorageDir: c.String("storage-dir"),
+				Hook:       hook,
 				Conman:     cm,
 			})
 			if err != nil {

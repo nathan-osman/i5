@@ -8,6 +8,8 @@ import (
 	"github.com/nathan-osman/i5/conman"
 )
 
+var errWebSocketError = "unable to connect to WebSocket"
+
 type apiStatusResponse struct {
 	Startup int64 `json:"startup"`
 }
@@ -28,4 +30,12 @@ func (s *Status) apiContainers(c *gin.Context) {
 	containers := s.conman.Info()
 	sort.Sort(byName(containers))
 	c.JSON(http.StatusOK, containers)
+}
+
+func (s *Status) webSocket(c *gin.Context) {
+	_, err := s.herald.AddClient(c.Writer, c.Request, nil)
+	if err != nil {
+		failure(c, 500, errWebSocketError)
+		return
+	}
 }
