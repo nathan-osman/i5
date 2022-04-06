@@ -6,8 +6,9 @@ const RequestTicker = () => {
 
   useEffect(() => {
     const loc = window.location;
+    let hostname = process.env.REACT_APP_HOSTNAME || loc.host;
     let websocket = new WebSocket(
-      `${loc.protocol === "https:" ? 'wss:' : 'ws:'}${process.env.REACT_APP_HOSTNAME}/api/ws`
+      `${loc.protocol === "https:" ? 'wss:' : 'ws:'}${hostname}/api/ws`
     );
     websocket.onmessage = (e) => {
       const data = JSON.parse(e.data);

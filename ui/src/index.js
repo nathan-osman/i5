@@ -12,10 +12,10 @@ import PrivateRoute from './auth/util/PrivateRoute';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.css';
 
-const apiPrefix = `http://${process.env.REACT_APP_HOSTNAME}`;
-
-axios.defaults.baseURL = apiPrefix;
-axios.defaults.withCredentials = Boolean(apiPrefix);
+if (typeof process.env.REACT_APP_HOSTNAME !== 'undefined') {
+  axios.defaults.baseURL = `http://${process.env.REACT_APP_HOSTNAME}`;
+  axios.defaults.withCredentials = true;
+}
 
 ReactDOM.render(
   <React.StrictMode>
