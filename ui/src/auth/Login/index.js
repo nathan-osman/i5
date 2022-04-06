@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useSetRecoilState } from 'recoil';
-import { authAtom } from '../api/state';
+import { authAtom } from '../api/auth';
 import Form from '../../components/Form';
 import './index.css';
 

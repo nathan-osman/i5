@@ -53,6 +53,12 @@ func (s *Status) authLogin(c *gin.Context) {
 	success(c)
 }
 
+func (s *Status) authLogout(c *gin.Context) {
+	session := sessions.Default(c)
+	session.Delete(sessionUsername)
+	success(c)
+}
+
 func requireLogin(c *gin.Context) {
 	session := sessions.Default(c)
 	if session.Get(sessionUsername) == nil {

@@ -43,6 +43,10 @@ func New(cfg *Config) (*Status, error) {
 		}
 		store = cookie.NewStore([]byte(cfg.Key))
 	)
+	store.Options(sessions.Options{
+		Path:     "/",
+		HttpOnly: true,
+	})
 	r.Use(
 		sessions.Sessions(sessionName, store),
 		static.Serve("/", ui.EmbedFileSystem{FileSystem: http.FS(ui.Content)}),
@@ -59,6 +63,7 @@ func New(cfg *Config) (*Status, error) {
 	auth := r.Group("/auth")
 	{
 		auth.POST("/login", s.authLogin)
+		auth.POST("/logout", s.authLogout)
 	}
 	api := r.Group("/api")
 	{

@@ -1,6 +1,6 @@
 import { Navigate } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
-import { authAtom } from '../api/state';
+import { authAtom } from '../api/auth';
 
 /**
  * Component to ensure user is logged in before navigating to a page
