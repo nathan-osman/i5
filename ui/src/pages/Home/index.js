@@ -1,8 +1,12 @@
 import ContainerList from '../../components/ContainerList';
+import RequestTicker from '../../components/RequestTicker';
 
 const Home = () => {
   return (
-    <ContainerList />
+    <div>
+      <ContainerList />
+      <RequestTicker />
+    </div>
   );
 };
 

@@ -12,7 +12,7 @@ import PrivateRoute from './auth/util/PrivateRoute';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.css';
 
-const apiPrefix = process.env.REACT_APP_API_PREFIX;
+const apiPrefix = `http://${process.env.REACT_APP_HOSTNAME}`;
 
 axios.defaults.baseURL = apiPrefix;
 axios.defaults.withCredentials = Boolean(apiPrefix);

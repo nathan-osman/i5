@@ -51,6 +51,7 @@ func New(cfg *Config) (*Status, error) {
 		store = cookie.NewStore([]byte(cfg.Key))
 	)
 	s.herald.Start()
+	s.herald.SetCheckOrigin(func(r *http.Request) bool { return true })
 	store.Options(sessions.Options{
 		Path:     "/",
 		HttpOnly: true,
@@ -90,14 +91,18 @@ func New(cfg *Config) (*Status, error) {
 }
 
 type messageRequest struct {
-	Host string `json:"host"`
-	Path string `json:"path"`
+	RemoteAddr string `json:"remote_addr"`
+	Method     string `json:"method"`
+	Host       string `json:"host"`
+	Path       string `json:"path"`
 }
 
 func (s *Status) BroadcastRequest(r *http.Request) {
 	m, err := herald.NewMessage(messageTypeRequest, &messageRequest{
-		Host: r.Host,
-		Path: r.URL.Path,
+		RemoteAddr: r.RemoteAddr,
+		Method:     r.Method,
+		Host:       r.Host,
+		Path:       r.URL.Path,
 	})
 	if err != nil {
 		// TODO: determine if this is an appropriate response
