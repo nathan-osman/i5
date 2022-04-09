@@ -12,12 +12,17 @@ const RequestTicker = () => {
     );
     websocket.onmessage = (e) => {
       const data = JSON.parse(e.data);
+      const date = new Date();
+      const time =
+        `${date.getHours().padStart(2, '0')}:` +
+        `${date.getMinutes().padStart(2, '0')}:` +
+        `${date.getSeconds().padStart(2, '0')}`;
       setRequests(r => [
-        ...r,
         {
           ...data.data,
-          time: new Date()
-        }
+          time
+        },
+        ...r
       ]);
     };
     return () => {
@@ -44,7 +49,7 @@ const RequestTicker = () => {
         <tbody>
           {request.map(request => (
             <tr key={+ request.time}>
-              <td>{request.time.toISOString()}</td>
+              <td>{request.time}</td>
               <td>{request.remote_addr}</td>
               <td>
                 <span className="badge bg-secondary">{request.method}</span></td>
