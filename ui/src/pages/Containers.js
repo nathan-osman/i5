@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { useCallback, useEffect, useState } from 'react';
 
-const ContainerList = () => {
+const Containers = () => {
 
   const [containers, setContainers] = useState([]);
 
@@ -58,4 +58,4 @@ const ContainerList = () => {
   );
 };
 
-export default ContainerList;
+export default Containers;

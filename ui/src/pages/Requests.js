@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const RequestTicker = () => {
+const Requests = () => {
 
   const [request, setRequests] = useState([]);
 
@@ -62,4 +62,4 @@ const RequestTicker = () => {
   );
 };
 
-export default RequestTicker;
+export default Requests;
