@@ -3,7 +3,7 @@ import 'bootstrap';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { RecoilRoot } from 'recoil';
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, Routes, Route } from "react-router-dom";
 
 import App from './app/App';
 import Home from './pages/Home';
@@ -22,7 +22,7 @@ if (typeof process.env.REACT_APP_HOSTNAME !== 'undefined') {
 ReactDOM.render(
   <React.StrictMode>
     <RecoilRoot>
-      <BrowserRouter>
+      <HashRouter>
         <Routes>
           <Route path="/" element={
             <PrivateRoute>
@@ -35,7 +35,7 @@ ReactDOM.render(
           </Route>
           <Route path="/login" element={<Login />} />
         </Routes>
-      </BrowserRouter>
+      </HashRouter>
     </RecoilRoot>
   </React.StrictMode>,
 
