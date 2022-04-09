@@ -1,6 +1,7 @@
 package status
 
 import (
+	"net"
 	"net/http"
 	"time"
 
@@ -98,8 +99,12 @@ type messageRequest struct {
 }
 
 func (s *Status) BroadcastRequest(r *http.Request) {
+	host, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		host = r.RemoteAddr
+	}
 	m, err := herald.NewMessage(messageTypeRequest, &messageRequest{
-		RemoteAddr: r.RemoteAddr,
+		RemoteAddr: host,
 		Method:     r.Method,
 		Host:       r.Host,
 		Path:       r.URL.Path,
