@@ -9,6 +9,8 @@ import App from './app/App';
 import Home from './pages/Home';
 import Login from './auth/Login';
 import PrivateRoute from './auth/util/PrivateRoute';
+import ContainerList from './components/ContainerList';
+import RequestTicker from './components/RequestTicker';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.css';
 
@@ -28,6 +30,8 @@ ReactDOM.render(
             </PrivateRoute>
           }>
             <Route index element={<Home />} />
+            <Route path="/containers" element={<ContainerList />} />
+            <Route path="/requests" element={<RequestTicker />} />
           </Route>
           <Route path="/login" element={<Login />} />
         </Routes>

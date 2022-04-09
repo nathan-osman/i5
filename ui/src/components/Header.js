@@ -23,6 +23,8 @@ const Header = () => {
         </button>
         <div className="collapse navbar-collapse" id="navbar-nav">
           <div className="navbar-nav me-auto">
+            <Link className="nav-link" to="/containers">Containers</Link>
+            <Link className="nav-link" to="/requests">Requests</Link>
           </div>
           <div className="navbar-nav">
             {isLoggingOut ?
