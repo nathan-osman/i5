@@ -51,7 +51,7 @@ const Requests = () => {
     try {
       return prettyBytes(parseInt(size));
     } catch {
-      return "n/a";
+      return "-";
     }
   }
 
@@ -70,24 +70,26 @@ const Requests = () => {
             <th>Request</th>
             <th>Response</th>
             <th>Type</th>
-            <th>Size</th>
+            <th className="text-end">Size</th>
           </tr>
         </thead>
         <tbody>
           {requests.length ?
             requests.map(request => (
               <tr key={+ request.date}>
-                <td>{request.time}</td>
-                <td>{request.remote_addr}</td>
-                <td>
-                  <span className="badge bg-secondary">{request.method}</span>{' '}
-                  <strong>{request.host}</strong>{request.path}
+                <td className="collapse-column">{request.time}</td>
+                <td className="collapse-column">{request.remote_addr}</td>
+                <td className="truncate-column" style={{ maxWidth: '200px' }}>
+                  <div className="truncate-fade">
+                    <span className="badge bg-secondary">{request.method}</span>{' '}
+                    <strong>{request.host}</strong>{request.path}
+                  </div>
                 </td>
-                <td className={statusCodeColor(request.status_code)}>
+                <td className={`collapse-column ${statusCodeColor(request.status_code)}`}>
                   <strong>{request.status}</strong>
                 </td>
-                <td>{request.content_type}</td>
-                <td>{prettySize(request.content_length)}</td>
+                <td className="collapse-column">{request.content_type || "-"}</td>
+                <td className="collapse-column text-end">{prettySize(request.content_length)}</td>
               </tr>
             )) :
             <tr>
