@@ -49,7 +49,7 @@ const Requests = () => {
 
   function prettySize(size) {
     try {
-      prettyBytes(parseInt(size));
+      return prettyBytes(parseInt(size));
     } catch {
       return "n/a";
     }

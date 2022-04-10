@@ -1,6 +1,7 @@
 package proxy
 
 import (
+	"mime"
 	"net"
 	"net/http"
 	"net/http/httputil"
@@ -58,6 +59,11 @@ func (p *Proxy) sendRequest(resp *http.Response) {
 	if err != nil {
 		host = resp.Request.RemoteAddr
 	}
+	contentType := resp.Header.Get("Content-Type")
+	mediatype, _, err := mime.ParseMediaType(contentType)
+	if err != nil {
+		mediatype = contentType
+	}
 	m, err := herald.NewMessage(messageTypeRequest, &messageRequest{
 		RemoteAddr:    host,
 		Method:        resp.Request.Method,
@@ -66,7 +72,7 @@ func (p *Proxy) sendRequest(resp *http.Response) {
 		StatusCode:    resp.StatusCode,
 		Status:        resp.Status,
 		ContentLength: resp.Header.Get("Content-Length"),
-		ContentType:   resp.Header.Get("Content-Type"),
+		ContentType:   mediatype,
 	})
 	if err != nil {
 		return
