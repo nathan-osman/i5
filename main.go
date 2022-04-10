@@ -10,6 +10,7 @@ import (
 	"github.com/nathan-osman/i5/conman"
 	"github.com/nathan-osman/i5/dbman"
 	"github.com/nathan-osman/i5/dockmon"
+	"github.com/nathan-osman/i5/notifier"
 	"github.com/nathan-osman/i5/server"
 	"github.com/nathan-osman/i5/status"
 	"github.com/urfave/cli/v2"
@@ -160,9 +161,22 @@ func main() {
 		},
 		Action: func(c *cli.Context) error {
 
+			// Check if the status website was enabled
+			var (
+				statusDomain = c.String("status-domain")
+				n            *notifier.Notifier
+			)
+			if statusDomain != "" {
+				n = notifier.New(&notifier.Config{
+					Debug: c.Bool("debug"),
+				})
+				defer n.Close()
+			}
+
 			// Create the Docker monitor
 			dm, err := dockmon.New(&dockmon.Config{
-				Host: c.String("docker-host"),
+				Host:     c.String("docker-host"),
+				Notifier: n,
 			})
 			if err != nil {
 				return err
@@ -207,10 +221,8 @@ func main() {
 			})
 			defer cm.Close()
 
-			var hook server.HookFn
-
 			// If a domain name for the internal server was specified, use it
-			if statusDomain := c.String("status-domain"); statusDomain != "" {
+			if statusDomain != "" {
 				s, err := status.New(&status.Config{
 					Key:        c.String("status-key"),
 					Debug:      c.Bool("debug"),
@@ -219,13 +231,13 @@ func main() {
 					StorageDir: c.String("storage-dir"),
 					Conman:     cm,
 					Dbman:      d,
+					Notifier:   n,
 				})
 				if err != nil {
 					return err
 				}
 				defer s.Close()
 				cm.Add(s.Container)
-				hook = s.BroadcastRequest
 			}
 
 			// Create the server
@@ -235,8 +247,8 @@ func main() {
 				HTTPAddr:   c.String("http-addr"),
 				HTTPSAddr:  c.String("https-addr"),
 				StorageDir: c.String("storage-dir"),
-				Hook:       hook,
 				Conman:     cm,
+				Notifier:   n,
 			})
 			if err != nil {
 				return err

@@ -31,7 +31,7 @@ func (s *Status) apiContainers(c *gin.Context) {
 }
 
 func (s *Status) webSocket(c *gin.Context) {
-	_, err := s.herald.AddClient(c.Writer, c.Request, nil)
+	_, err := s.notifier.AddClient(c.Writer, c.Request, nil)
 	if err != nil {
 		// TODO: log the error
 		return

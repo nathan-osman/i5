@@ -7,6 +7,7 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/client"
+	"github.com/nathan-osman/i5/notifier"
 	"github.com/nathan-osman/i5/util"
 	"github.com/sirupsen/logrus"
 )
@@ -45,6 +46,7 @@ type Dockmon struct {
 	log        *logrus.Entry
 	client     *client.Client
 	conMap     util.StringMap
+	notifier   *notifier.Notifier
 	eventChan  chan *Event
 	closeFunc  context.CancelFunc
 	closedChan chan bool
@@ -58,7 +60,7 @@ func (d *Dockmon) sendEvent(action string, con *Container) {
 }
 
 func (d *Dockmon) add(ctx context.Context, id string) {
-	if con, err := NewContainerFromClient(ctx, d.client, id); err == nil {
+	if con, err := d.newContainerFromClient(ctx, d.client, id); err == nil {
 		d.conMap.Insert(id, con)
 		d.sendEvent(Create, con)
 		if con.Running {
@@ -184,6 +186,7 @@ func New(cfg *Config) (*Dockmon, error) {
 			log:        logrus.WithField("context", "dockmon"),
 			client:     c,
 			conMap:     util.StringMap{},
+			notifier:   cfg.Notifier,
 			eventChan:  eventChan,
 			closeFunc:  cancelFunc,
 			closedChan: make(chan bool),

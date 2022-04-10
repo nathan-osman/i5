@@ -65,11 +65,12 @@ func getWithDefault(m map[string]string, key, def string) string {
 	return def
 }
 
-// NewContainer creates a new Container from the provided data.
-func NewContainer(id, name string, labels map[string]string, running bool) (*Container, error) {
+func (d *Dockmon) newContainer(id, name string, labels map[string]string, running bool) (*Container, error) {
 	var (
-		cfg = &proxy.Config{}
-		c   = &Container{
+		cfg = &proxy.Config{
+			Notifier: d.notifier,
+		}
+		c = &Container{
 			ID:      id,
 			Name:    name,
 			Running: running,
@@ -123,13 +124,12 @@ func NewContainer(id, name string, labels map[string]string, running bool) (*Con
 	return c, nil
 }
 
-// NewContainerFromClient creates a new Container using the provided client.
-func NewContainerFromClient(ctx context.Context, client *client.Client, id string) (*Container, error) {
+func (d *Dockmon) newContainerFromClient(ctx context.Context, client *client.Client, id string) (*Container, error) {
 	containerJSON, err := client.ContainerInspect(ctx, id)
 	if err != nil {
 		return nil, err
 	}
-	return NewContainer(
+	return d.newContainer(
 		containerJSON.ID,
 		containerJSON.Name[1:],
 		containerJSON.Config.Labels,

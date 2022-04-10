@@ -1,7 +1,6 @@
 package status
 
 import (
-	"net"
 	"net/http"
 	"time"
 
@@ -10,27 +9,23 @@ import (
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
-	"github.com/nathan-osman/go-herald"
 	"github.com/nathan-osman/i5/conman"
 	"github.com/nathan-osman/i5/dbman"
 	"github.com/nathan-osman/i5/dockmon"
+	"github.com/nathan-osman/i5/notifier"
 	"github.com/nathan-osman/i5/ui"
 	bolt "go.etcd.io/bbolt"
 )
 
-const (
-	sessionName = "status"
-
-	messageTypeRequest = "request"
-)
+const sessionName = "status"
 
 // Status provides a set of endpoints that display status information.
 type Status struct {
 	Container *dockmon.Container
 	conman    *conman.Conman
 	dbman     *dbman.Manager
+	notifier  *notifier.Notifier
 	db        *bolt.DB
-	herald    *herald.Herald
 	startup   int64
 }
 
@@ -43,16 +38,14 @@ func New(cfg *Config) (*Status, error) {
 	var (
 		r = gin.Default()
 		s = &Status{
-			conman:  cfg.Conman,
-			dbman:   cfg.Dbman,
-			db:      d,
-			herald:  herald.New(),
-			startup: time.Now().Unix(),
+			conman:   cfg.Conman,
+			dbman:    cfg.Dbman,
+			notifier: cfg.Notifier,
+			db:       d,
+			startup:  time.Now().Unix(),
 		}
 		store = cookie.NewStore([]byte(cfg.Key))
 	)
-	s.herald.Start()
-	s.herald.SetCheckOrigin(func(r *http.Request) bool { return true })
 	store.Options(sessions.Options{
 		Path:     "/",
 		HttpOnly: true,
@@ -91,33 +84,7 @@ func New(cfg *Config) (*Status, error) {
 	return s, nil
 }
 
-type messageRequest struct {
-	RemoteAddr string `json:"remote_addr"`
-	Method     string `json:"method"`
-	Host       string `json:"host"`
-	Path       string `json:"path"`
-}
-
-func (s *Status) BroadcastRequest(r *http.Request) {
-	host, _, err := net.SplitHostPort(r.RemoteAddr)
-	if err != nil {
-		host = r.RemoteAddr
-	}
-	m, err := herald.NewMessage(messageTypeRequest, &messageRequest{
-		RemoteAddr: host,
-		Method:     r.Method,
-		Host:       r.Host,
-		Path:       r.URL.Path,
-	})
-	if err != nil {
-		// TODO: determine if this is an appropriate response
-		return
-	}
-	s.herald.Send(m, nil)
-}
-
 // Close shuts down the status server.
 func (s *Status) Close() {
-	s.herald.Close()
 	s.db.Close()
 }

@@ -10,6 +10,7 @@ import (
 
 	"github.com/nathan-osman/i5/conman"
 	"github.com/nathan-osman/i5/dockmon"
+	"github.com/nathan-osman/i5/notifier"
 	"github.com/nathan-osman/i5/proxy"
 	"github.com/nathan-osman/i5/util"
 	"github.com/sirupsen/logrus"
@@ -27,8 +28,8 @@ const (
 // Server listens for incoming connections and routes them accordingly.
 type Server struct {
 	log         *logrus.Entry
-	hook        HookFn
 	conman      *conman.Conman
+	notifier    *notifier.Notifier
 	httpServer  *http.Server
 	httpsServer *http.Server
 }
@@ -47,11 +48,6 @@ func (s *Server) handleRequest(con *dockmon.Container, w http.ResponseWriter, r 
 }
 
 func (s *Server) handleHTTP(w http.ResponseWriter, r *http.Request) {
-	// TODO: the hook should include more information about the request and
-	// should therefore be moved further down in this method
-	if s.hook != nil {
-		s.hook(r)
-	}
 	if con, err := s.conman.Lookup(r.Host); err == nil {
 		if con.Insecure {
 			s.handleRequest(con, w, r)
@@ -89,8 +85,8 @@ func New(cfg *Config) (*Server, error) {
 	var (
 		s = &Server{
 			log:         logrus.WithField("context", "server"),
-			hook:        cfg.Hook,
 			conman:      cfg.Conman,
+			notifier:    cfg.Notifier,
 			httpServer:  &http.Server{},
 			httpsServer: &http.Server{},
 		}
