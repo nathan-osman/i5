@@ -55,7 +55,7 @@ const Requests = () => {
       </p>
 
       <table className="table table-striped">
-        <thead>
+        <thead className="table-dark">
           <tr>
             <th>Time</th>
             <th>Client</th>
