@@ -83,7 +83,7 @@ const Requests = () => {
               </tr>
             )) :
             <tr>
-              <td colSpan="5">
+              <td colSpan="6">
                 <p className="text-muted text-center p-5">No requests yet</p>
               </td>
             </tr>
