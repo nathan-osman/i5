@@ -47,6 +47,14 @@ const Requests = () => {
     }
   }
 
+  function prettySize(size) {
+    try {
+      prettyBytes(parseInt(size));
+    } catch {
+      return "n/a";
+    }
+  }
+
   return (
     <div>
       <h1>Requests</h1>
@@ -79,7 +87,7 @@ const Requests = () => {
                   <strong>{request.status}</strong>
                 </td>
                 <td>{request.content_type}</td>
-                <td>{request.content_length ? prettyBytes(request.content_length) : 'n/a'}</td>
+                <td>{prettySize(request.content_length)}</td>
               </tr>
             )) :
             <tr>
