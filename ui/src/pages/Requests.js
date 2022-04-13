@@ -66,7 +66,7 @@ const Requests = () => {
         <thead className="table-dark">
           <tr>
             <th>Time</th>
-            <th>Client</th>
+            <th colSpan="2">Client</th>
             <th>Request</th>
             <th>Response</th>
             <th>Type</th>
@@ -80,6 +80,8 @@ const Requests = () => {
                 <td className="collapse-column">{request.time}</td>
                 <td className="collapse-column">
                   <img src={`/static/img/${request.country_code}.png`} className="flag" />
+                </td>
+                <td className="collapse-column">
                   {request.remote_addr}
                 </td>
                 <td className="truncate-column" style={{ maxWidth: '200px' }}>
