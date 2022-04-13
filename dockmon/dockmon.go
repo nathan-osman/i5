@@ -7,6 +7,7 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/client"
+	"github.com/nathan-osman/i5/geolocation"
 	"github.com/nathan-osman/i5/notifier"
 	"github.com/nathan-osman/i5/util"
 	"github.com/sirupsen/logrus"
@@ -42,14 +43,15 @@ type Event struct {
 
 // Dockmon manages a connection to the Docker daemon and delivers events as containers are created, destroyed, started, and stopped. A list of containers is also kept.
 type Dockmon struct {
-	EventChan  <-chan *Event
-	log        *logrus.Entry
-	client     *client.Client
-	conMap     util.StringMap
-	notifier   *notifier.Notifier
-	eventChan  chan *Event
-	closeFunc  context.CancelFunc
-	closedChan chan bool
+	EventChan   <-chan *Event
+	log         *logrus.Entry
+	client      *client.Client
+	conMap      util.StringMap
+	geolocation *geolocation.Geolocation
+	notifier    *notifier.Notifier
+	eventChan   chan *Event
+	closeFunc   context.CancelFunc
+	closedChan  chan bool
 }
 
 func (d *Dockmon) sendEvent(action string, con *Container) {
@@ -182,14 +184,15 @@ func New(cfg *Config) (*Dockmon, error) {
 		ctx, cancelFunc = context.WithCancel(context.Background())
 		eventChan       = make(chan *Event)
 		d               = &Dockmon{
-			EventChan:  eventChan,
-			log:        logrus.WithField("context", "dockmon"),
-			client:     c,
-			conMap:     util.StringMap{},
-			notifier:   cfg.Notifier,
-			eventChan:  eventChan,
-			closeFunc:  cancelFunc,
-			closedChan: make(chan bool),
+			EventChan:   eventChan,
+			log:         logrus.WithField("context", "dockmon"),
+			client:      c,
+			conMap:      util.StringMap{},
+			geolocation: cfg.Geolocation,
+			notifier:    cfg.Notifier,
+			eventChan:   eventChan,
+			closeFunc:   cancelFunc,
+			closedChan:  make(chan bool),
 		}
 	)
 	go d.run(ctx)

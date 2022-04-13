@@ -10,6 +10,7 @@ import (
 	"github.com/nathan-osman/i5/conman"
 	"github.com/nathan-osman/i5/dbman"
 	"github.com/nathan-osman/i5/dockmon"
+	"github.com/nathan-osman/i5/geolocation"
 	"github.com/nathan-osman/i5/notifier"
 	"github.com/nathan-osman/i5/server"
 	"github.com/nathan-osman/i5/status"
@@ -36,6 +37,16 @@ func main() {
 				Name:    "email",
 				EnvVars: []string{"EMAIL"},
 				Usage:   "email address to use for challenges",
+			},
+			&cli.StringFlag{
+				Name:    "geolocation-db-type",
+				EnvVars: []string{"GEOLOCATION_DB_TYPE"},
+				Usage:   "type of IP gelocation database",
+			},
+			&cli.StringFlag{
+				Name:    "geolocation-db-path",
+				EnvVars: []string{"GEOLOCATION_DB_PATH"},
+				Usage:   "path to IP geolocation database",
 			},
 			&cli.StringFlag{
 				Name:    "http-addr",
@@ -161,6 +172,23 @@ func main() {
 		},
 		Action: func(c *cli.Context) error {
 
+			// If an IP geolocation database was provided, load it
+			var (
+				geoDBType = c.String("geolocation-db-type")
+				geoDB     *geolocation.Geolocation
+			)
+			if geoDBType != "" {
+				g, err := geolocation.New(&geolocation.Config{
+					DBType: geoDBType,
+					DBPath: c.String("geolocation-db-path"),
+				})
+				if err != nil {
+					return err
+				}
+				geoDB = g
+				defer g.Close()
+			}
+
 			// Check if the status website was enabled
 			var (
 				statusDomain = c.String("status-domain")
@@ -175,8 +203,9 @@ func main() {
 
 			// Create the Docker monitor
 			dm, err := dockmon.New(&dockmon.Config{
-				Host:     c.String("docker-host"),
-				Notifier: n,
+				Host:        c.String("docker-host"),
+				Geolocation: geoDB,
+				Notifier:    n,
 			})
 			if err != nil {
 				return err

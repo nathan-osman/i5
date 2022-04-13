@@ -68,7 +68,8 @@ func getWithDefault(m map[string]string, key, def string) string {
 func (d *Dockmon) newContainer(id, name string, labels map[string]string, running bool) (*Container, error) {
 	var (
 		cfg = &proxy.Config{
-			Notifier: d.notifier,
+			Geolocation: d.geolocation,
+			Notifier:    d.notifier,
 		}
 		c = &Container{
 			ID:      id,
