@@ -78,7 +78,10 @@ const Requests = () => {
             requests.map(request => (
               <tr key={+ request.date}>
                 <td className="collapse-column">{request.time}</td>
-                <td className="collapse-column">{request.remote_addr}</td>
+                <td className="collapse-column">
+                  <img src={`/static/img/${request.country_code}.png`} className="flag" />
+                  {request.remote_addr}
+                </td>
                 <td className="truncate-column" style={{ maxWidth: '200px' }}>
                   <div className="truncate-fade">
                     <span className="badge bg-secondary">{request.method}</span>{' '}

@@ -9,6 +9,10 @@ body,
   width: 0;
 }
 
+.flag {
+  width: 24px;
+}
+
 .truncate-column {
   overflow: hidden;
   white-space: nowrap;
