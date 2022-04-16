@@ -7,8 +7,7 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/client"
-	"github.com/nathan-osman/geolocator"
-	"github.com/nathan-osman/i5/notifier"
+	"github.com/nathan-osman/i5/logger"
 	"github.com/nathan-osman/i5/util"
 	"github.com/sirupsen/logrus"
 )
@@ -47,8 +46,7 @@ type Dockmon struct {
 	log        *logrus.Entry
 	client     *client.Client
 	conMap     util.StringMap
-	provider   geolocator.Provider
-	notifier   *notifier.Notifier
+	logger     *logger.Logger
 	eventChan  chan *Event
 	closeFunc  context.CancelFunc
 	closedChan chan bool
@@ -188,8 +186,7 @@ func New(cfg *Config) (*Dockmon, error) {
 			log:        logrus.WithField("context", "dockmon"),
 			client:     c,
 			conMap:     util.StringMap{},
-			provider:   cfg.Provider,
-			notifier:   cfg.Notifier,
+			logger:     cfg.Logger,
 			eventChan:  eventChan,
 			closeFunc:  cancelFunc,
 			closedChan: make(chan bool),

@@ -7,12 +7,10 @@ import (
 	"syscall"
 
 	"github.com/howeyc/gopass"
-	"github.com/nathan-osman/geolocator"
-	"github.com/nathan-osman/geolocator/ip2location"
 	"github.com/nathan-osman/i5/conman"
 	"github.com/nathan-osman/i5/dbman"
 	"github.com/nathan-osman/i5/dockmon"
-	"github.com/nathan-osman/i5/notifier"
+	"github.com/nathan-osman/i5/logger"
 	"github.com/nathan-osman/i5/server"
 	"github.com/nathan-osman/i5/status"
 	"github.com/urfave/cli/v2"
@@ -173,35 +171,25 @@ func main() {
 		},
 		Action: func(c *cli.Context) error {
 
-			// If an IP geolocation database was provided, load it
-			var geoProvider geolocator.Provider
-			switch c.String("geolocation-db-type") {
-			case "ip2location":
-				p, err := ip2location.New(c.String("geolocation-db-path"))
-				if err != nil {
-					return err
-				}
-				geoProvider = p
-				defer p.Close()
-			}
-
 			// Check if the status website was enabled
-			var (
-				statusDomain = c.String("status-domain")
-				n            *notifier.Notifier
-			)
-			if statusDomain != "" {
-				n = notifier.New(&notifier.Config{
-					Debug: c.Bool("debug"),
-				})
-				defer n.Close()
+			var statusDomain = c.String("status-domain")
+
+			// Create the logger
+			l, err := logger.New(&logger.Config{
+				Debug:             c.Bool("debug"),
+				GeolocationDBType: c.String("geolocation-db-type"),
+				GeolocationDBPath: c.String("geolocation-db-path"),
+				Status:            statusDomain != "",
+			})
+			if err != nil {
+				return err
 			}
+			defer l.Close()
 
 			// Create the Docker monitor
 			dm, err := dockmon.New(&dockmon.Config{
-				Host:     c.String("docker-host"),
-				Provider: geoProvider,
-				Notifier: n,
+				Host:   c.String("docker-host"),
+				Logger: l,
 			})
 			if err != nil {
 				return err
@@ -256,7 +244,7 @@ func main() {
 					StorageDir: c.String("storage-dir"),
 					Conman:     cm,
 					Dbman:      d,
-					Notifier:   n,
+					Logger:     l,
 				})
 				if err != nil {
 					return err
@@ -273,7 +261,6 @@ func main() {
 				HTTPSAddr:  c.String("https-addr"),
 				StorageDir: c.String("storage-dir"),
 				Conman:     cm,
-				Notifier:   n,
 			})
 			if err != nil {
 				return err

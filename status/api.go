@@ -31,9 +31,9 @@ func (s *Status) apiContainers(c *gin.Context) {
 }
 
 func (s *Status) webSocket(c *gin.Context) {
-	_, err := s.notifier.AddClient(c.Writer, c.Request, nil)
-	if err != nil {
-		// TODO: log the error
+	if err := s.logger.AddClient(c.Writer, c.Request); err != nil {
+		// TODO: not sure if we can return a response here since we don't know
+		// what state the connection is in, so just do nothing for the moment
 		return
 	}
 }

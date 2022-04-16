@@ -12,7 +12,7 @@ import (
 	"github.com/nathan-osman/i5/conman"
 	"github.com/nathan-osman/i5/dbman"
 	"github.com/nathan-osman/i5/dockmon"
-	"github.com/nathan-osman/i5/notifier"
+	"github.com/nathan-osman/i5/logger"
 	"github.com/nathan-osman/i5/ui"
 	bolt "go.etcd.io/bbolt"
 )
@@ -24,7 +24,7 @@ type Status struct {
 	Container *dockmon.Container
 	conman    *conman.Conman
 	dbman     *dbman.Manager
-	notifier  *notifier.Notifier
+	logger    *logger.Logger
 	db        *bolt.DB
 	startup   int64
 }
@@ -38,11 +38,11 @@ func New(cfg *Config) (*Status, error) {
 	var (
 		r = gin.Default()
 		s = &Status{
-			conman:   cfg.Conman,
-			dbman:    cfg.Dbman,
-			notifier: cfg.Notifier,
-			db:       d,
-			startup:  time.Now().Unix(),
+			conman:  cfg.Conman,
+			dbman:   cfg.Dbman,
+			logger:  cfg.Logger,
+			db:      d,
+			startup: time.Now().Unix(),
 		}
 		store = cookie.NewStore([]byte(cfg.Key))
 	)

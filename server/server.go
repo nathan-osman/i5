@@ -10,7 +10,6 @@ import (
 
 	"github.com/nathan-osman/i5/conman"
 	"github.com/nathan-osman/i5/dockmon"
-	"github.com/nathan-osman/i5/notifier"
 	"github.com/nathan-osman/i5/proxy"
 	"github.com/nathan-osman/i5/util"
 	"github.com/sirupsen/logrus"
@@ -29,7 +28,6 @@ const (
 type Server struct {
 	log         *logrus.Entry
 	conman      *conman.Conman
-	notifier    *notifier.Notifier
 	httpServer  *http.Server
 	httpsServer *http.Server
 }
@@ -86,7 +84,6 @@ func New(cfg *Config) (*Server, error) {
 		s = &Server{
 			log:         logrus.WithField("context", "server"),
 			conman:      cfg.Conman,
-			notifier:    cfg.Notifier,
 			httpServer:  &http.Server{},
 			httpsServer: &http.Server{},
 		}
