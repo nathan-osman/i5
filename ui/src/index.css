@@ -15,6 +15,11 @@ body,
   width: 24px;
 }
 
+.stat-label {
+  display: block;
+  font-size: 1rem;
+}
+
 .truncate-column {
   overflow: hidden;
   white-space: nowrap;
