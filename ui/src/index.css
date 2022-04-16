@@ -10,6 +10,8 @@ body,
 }
 
 .flag {
+  margin-right: 8px;
+  vertical-align: bottom;
   width: 24px;
 }
 
