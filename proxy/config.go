@@ -1,7 +1,7 @@
 package proxy
 
 import (
-	"github.com/nathan-osman/i5/geolocation"
+	"github.com/nathan-osman/geolocator"
 	"github.com/nathan-osman/i5/notifier"
 )
 
@@ -9,6 +9,6 @@ import (
 type Config struct {
 	Addr        string
 	Mountpoints []*Mountpoint
-	Geolocation *geolocation.Geolocation
+	Provider    geolocator.Provider
 	Notifier    *notifier.Notifier
 }

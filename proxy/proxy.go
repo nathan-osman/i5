@@ -8,8 +8,8 @@ import (
 	"net/url"
 
 	"github.com/go-chi/chi"
+	"github.com/nathan-osman/geolocator"
 	"github.com/nathan-osman/go-herald"
-	"github.com/nathan-osman/i5/geolocation"
 	"github.com/nathan-osman/i5/notifier"
 	"github.com/nathan-osman/i5/util"
 )
@@ -28,10 +28,10 @@ type Mountpoint struct {
 
 // Proxy acts as a reverse proxy and static file server for a specific site.
 type Proxy struct {
-	addr        string
-	router      *chi.Mux
-	geolocation *geolocation.Geolocation
-	notifier    *notifier.Notifier
+	addr     string
+	router   *chi.Mux
+	provider geolocator.Provider
+	notifier *notifier.Notifier
 }
 
 func applyBranding(header http.Header) {
@@ -48,6 +48,7 @@ func brandingHandler(h http.Handler) http.Handler {
 type messageRequest struct {
 	RemoteAddr    string `json:"remote_addr"`
 	CountryCode   string `json:"country_code"`
+	CountryName   string `json:"country_name"`
 	Method        string `json:"method"`
 	Host          string `json:"host"`
 	Path          string `json:"path"`
@@ -62,9 +63,16 @@ func (p *Proxy) sendRequest(resp *http.Response) {
 	if err != nil {
 		host = resp.Request.RemoteAddr
 	}
-	var countryCode string
-	if p.geolocation != nil {
-		countryCode = p.geolocation.Country(host)
+	var (
+		countryCode string
+		countryName string
+	)
+	if p.provider != nil {
+		r, err := p.provider.Geolocate(host)
+		if err == nil {
+			countryCode = r.CountryCode
+			countryName = r.CountryName
+		}
 	}
 	contentType := resp.Header.Get("Content-Type")
 	mediatype, _, err := mime.ParseMediaType(contentType)
@@ -74,6 +82,7 @@ func (p *Proxy) sendRequest(resp *http.Response) {
 	m, err := herald.NewMessage(messageTypeRequest, &messageRequest{
 		RemoteAddr:    host,
 		CountryCode:   countryCode,
+		CountryName:   countryName,
 		Method:        resp.Request.Method,
 		Host:          resp.Request.Host,
 		Path:          resp.Request.URL.Path,
@@ -121,10 +130,10 @@ func (p *Proxy) handle(w http.ResponseWriter, r *http.Request) {
 // New creates and initializes a new proxy for a domain.
 func New(cfg *Config) *Proxy {
 	p := &Proxy{
-		addr:        cfg.Addr,
-		router:      chi.NewRouter(),
-		geolocation: cfg.Geolocation,
-		notifier:    cfg.Notifier,
+		addr:     cfg.Addr,
+		router:   chi.NewRouter(),
+		provider: cfg.Provider,
+		notifier: cfg.Notifier,
 	}
 	for _, m := range cfg.Mountpoints {
 		p.router.Handle(

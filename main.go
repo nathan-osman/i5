@@ -7,10 +7,11 @@ import (
 	"syscall"
 
 	"github.com/howeyc/gopass"
+	"github.com/nathan-osman/geolocator"
+	"github.com/nathan-osman/geolocator/ip2location"
 	"github.com/nathan-osman/i5/conman"
 	"github.com/nathan-osman/i5/dbman"
 	"github.com/nathan-osman/i5/dockmon"
-	"github.com/nathan-osman/i5/geolocation"
 	"github.com/nathan-osman/i5/notifier"
 	"github.com/nathan-osman/i5/server"
 	"github.com/nathan-osman/i5/status"
@@ -173,20 +174,15 @@ func main() {
 		Action: func(c *cli.Context) error {
 
 			// If an IP geolocation database was provided, load it
-			var (
-				geoDBType = c.String("geolocation-db-type")
-				geoDB     *geolocation.Geolocation
-			)
-			if geoDBType != "" {
-				g, err := geolocation.New(&geolocation.Config{
-					DBType: geoDBType,
-					DBPath: c.String("geolocation-db-path"),
-				})
+			var geoProvider geolocator.Provider
+			switch c.String("geolocation-db-type") {
+			case "ip2location":
+				p, err := ip2location.New(c.String("geolocation-db-path"))
 				if err != nil {
 					return err
 				}
-				geoDB = g
-				defer g.Close()
+				geoProvider = p
+				defer p.Close()
 			}
 
 			// Check if the status website was enabled
@@ -203,9 +199,9 @@ func main() {
 
 			// Create the Docker monitor
 			dm, err := dockmon.New(&dockmon.Config{
-				Host:        c.String("docker-host"),
-				Geolocation: geoDB,
-				Notifier:    n,
+				Host:     c.String("docker-host"),
+				Provider: geoProvider,
+				Notifier: n,
 			})
 			if err != nil {
 				return err
