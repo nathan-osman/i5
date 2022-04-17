@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	//go:embed out/*
+	//go:embed all:out
 	content    embed.FS
 	Content, _ = fs.Sub(content, "out")
 )

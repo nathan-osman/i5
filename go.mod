@@ -1,6 +1,6 @@
 module github.com/nathan-osman/i5
 
-go 1.16
+go 1.18
 
 require (
 	github.com/containerd/containerd v1.6.2 // indirect

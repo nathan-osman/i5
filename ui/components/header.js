@@ -4,10 +4,18 @@ import { useRouter } from 'next/router'
 function ActiveLink({ children, href }) {
 
   const router = useRouter()
-  const isActive = href === router.pathname
+  const isActive = href === router.asPath
+
+  const handleClick = (e) => {
+    e.preventDefault()
+    router.push(href)
+  }
 
   return (
-    <a href={href} className={isActive ? styles.active : ''}>
+    <a
+      href={href}
+      onClick={handleClick}
+      className={isActive ? styles.active : ''}>
       {children}
     </a>
   )
@@ -21,7 +29,6 @@ export default function Header() {
           <img
             src="/logo192.png"
             width="32px" />
-          <ActiveLink href="/">Test</ActiveLink>
           <ActiveLink href="/containers">Containers</ActiveLink>
           <ActiveLink href="/requests">Requests</ActiveLink>
           <div className={styles.spacer} />
