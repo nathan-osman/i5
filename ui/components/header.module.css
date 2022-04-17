@@ -1,0 +1,32 @@
+.header {
+  background-color: #e0e0e0;
+}
+
+.header .links {
+  display: flex;
+}
+
+.header .links img {
+  margin: 16px 32px 16px 0;
+}
+
+.header .links a {
+  align-items: center;
+  display: flex;
+  font-size: 1.25rem;
+  margin: 0 12px;
+  position: relative;
+}
+
+.header .links a.active::after {
+  background-color: #800080;
+  bottom: 0;
+  content: "";
+  position: absolute;
+  height: 4px;
+  width: 100%;
+}
+
+.header .links .spacer {
+  flex-grow: 1;
+}

@@ -2,6 +2,32 @@
   box-sizing: border-box;
 }
 
+html,
+body,
+#__next {
+  height: 100%;
+}
+
 body {
   font-family: sans-serif;
+  margin: 0;
+}
+
+a {
+  color: #800080;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #cd4dcd;
+}
+
+.container {
+  margin: auto;
+}
+
+@media (min-width: 940px) {
+  .container {
+    max-width: 900px;
+  }
 }
