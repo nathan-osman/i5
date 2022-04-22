@@ -6,6 +6,14 @@ module.exports = {
   module: {
     rules: [
       {
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader']
+      },
+      {
+        test: /\.png$/,
+        type: 'asset/resource'
+      },
+      {
         test: /\.js$/,
         include: path.resolve(__dirname, './src'),
         use: 'babel-loader'
@@ -25,6 +33,7 @@ module.exports = {
     ]
   },
   output: {
-    clean: true
+    clean: true,
+    filename: '[name].[contenthash].js'
   }
 }

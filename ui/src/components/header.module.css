@@ -1,0 +1,30 @@
+.header {
+  background-color: #e0e0e0;
+  margin-bottom: 32px;
+}
+
+.header .links {
+  display: inline-grid;
+  grid-auto-flow: column;
+  column-gap: 16px;
+}
+
+.header .links img {
+  margin: 16px 16px 16px 0;
+  width: 32px;
+}
+
+.header .links a {
+  align-items: center;
+  display: flex;
+  position: relative;
+}
+
+.header .links a.active::after {
+  background-color: #800080;
+  bottom: 0;
+  content: "";
+  position: absolute;
+  height: 4px;
+  width: 100%;
+}

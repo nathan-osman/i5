@@ -1,0 +1,25 @@
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  font-family: sans-serif;
+  font-size: 16pt;
+  margin: 0;
+}
+
+a {
+  text-decoration: none;
+}
+
+.container {
+  margin: auto;
+}
+
+@media (min-width: 940px) {
+  .container {
+    max-width: 900px;
+  }
+}
