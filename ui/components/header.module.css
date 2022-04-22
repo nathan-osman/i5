@@ -1,5 +1,6 @@
 .header {
   background-color: #e0e0e0;
+  margin-bottom: 32px;
 }
 
 .header .links {
@@ -13,7 +14,6 @@
 .header .links a {
   align-items: center;
   display: flex;
-  font-size: 1.25rem;
   margin: 0 12px;
   position: relative;
 }

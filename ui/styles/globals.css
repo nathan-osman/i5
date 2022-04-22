@@ -10,6 +10,7 @@ body,
 
 body {
   font-family: sans-serif;
+  font-size: 1.25rem;
   margin: 0;
 }
 
@@ -24,6 +25,10 @@ a:hover {
 
 .container {
   margin: auto;
+}
+
+.help {
+  color: #707070;
 }
 
 @media (min-width: 940px) {
