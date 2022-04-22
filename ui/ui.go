@@ -8,9 +8,9 @@ import (
 )
 
 var (
-	//go:embed all:out
+	//go:embed dist
 	content    embed.FS
-	Content, _ = fs.Sub(content, "out")
+	Content, _ = fs.Sub(content, "dist")
 )
 
 // EmbedFileSystem implements the ServeFileSystem interface.
