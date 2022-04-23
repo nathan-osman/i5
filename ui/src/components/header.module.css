@@ -1,30 +1,38 @@
-.header {
+.header_outer {
   background-color: #e0e0e0;
   margin-bottom: 32px;
 }
 
-.header .links {
-  display: inline-grid;
+.header_inner {
+  display: flex;
+}
+
+.logo {
+  margin: 16px 32px 16px 0;
+  width: 32px;
+}
+
+.nav {
+  display: grid;
   grid-auto-flow: column;
   column-gap: 16px;
 }
 
-.header .links img {
-  margin: 16px 16px 16px 0;
-  width: 32px;
-}
-
-.header .links a {
+.nav a {
   align-items: center;
   display: flex;
   position: relative;
 }
 
-.header .links a.active::after {
+.nav a.active::after {
   background-color: #800080;
   bottom: 0;
   content: "";
   position: absolute;
   height: 4px;
   width: 100%;
+}
+
+.separator {
+  flex-grow: 1;
 }

@@ -1,3 +1,4 @@
+import { Outlet } from 'react-router-dom'
 import Header from './components/header'
 
 export default function App() {
@@ -5,7 +6,7 @@ export default function App() {
     <div>
       <Header />
       <div className="container">
-        <h1>Hello World!</h1>
+        <Outlet />
       </div>
     </div>
   )
