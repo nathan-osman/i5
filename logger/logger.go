@@ -48,6 +48,10 @@ func (l *Logger) AddClient(w http.ResponseWriter, r *http.Request) error {
 
 // Close shuts down the logger.
 func (l *Logger) Close() {
-	l.herald.Close()
-	l.geolocator.Close()
+	if l.herald != nil {
+		l.herald.Close()
+	}
+	if l.geolocator != nil {
+		l.geolocator.Close()
+	}
 }
