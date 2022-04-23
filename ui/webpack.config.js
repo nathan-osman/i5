@@ -37,6 +37,9 @@ module.exports = {
     filename: '[name].[contenthash].js'
   },
   devServer: {
-    historyApiFallback: true
+    historyApiFallback: true,
+    proxy: {
+      '/api': 'http://localhost'
+    }
   }
 }
