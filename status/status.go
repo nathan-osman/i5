@@ -75,6 +75,11 @@ func New(cfg *Config) (*Status, error) {
 		api.GET("/containers", s.apiContainers)
 		api.GET("/ws", s.webSocket)
 	}
+	r.NoRoute(func(c *gin.Context) {
+		c.Request.URL.Path = "/"
+		r.HandleContext(c)
+		c.Abort()
+	})
 	s.Container = &dockmon.Container{
 		Domains:  []string{cfg.Domain},
 		Insecure: cfg.Insecure,
