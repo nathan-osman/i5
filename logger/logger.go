@@ -33,6 +33,7 @@ func New(cfg *Config) (*Logger, error) {
 	if cfg.Status {
 		h = herald.New()
 		h.SetCheckOrigin(func(r *http.Request) bool { return true })
+		h.Start()
 	}
 	return &Logger{
 		geolocator: p,
