@@ -1,5 +1,4 @@
-import React from 'react'
-import ReactDOM from 'react-dom'
+import { createRoot } from 'react-dom/client'
 import {
   BrowserRouter,
   Routes,
@@ -10,7 +9,11 @@ import Containers from './routes/containers'
 import Requests from './routes/requests'
 import './index.css'
 
-ReactDOM.render(
+const root = createRoot(
+  document.getElementById('root')
+)
+
+root.render(
   <BrowserRouter>
     <Routes>
       <Route path="/" element={<App />}>
@@ -19,5 +22,4 @@ ReactDOM.render(
       </Route>
     </Routes>
   </BrowserRouter>,
-  document.getElementById('root')
 )
