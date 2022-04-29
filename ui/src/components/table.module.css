@@ -1,0 +1,19 @@
+.table {
+  border-collapse: collapse;
+  font-size: 12pt;
+  width: 100%;
+}
+
+.table thead th,
+.table tbody td {
+  padding: 8px;
+}
+
+.table thead th {
+  border-bottom: 1px solid black;
+  text-align: left;
+}
+
+.table tbody tr:nth-of-type(odd) {
+  background-color: #f0f0f0;
+}
