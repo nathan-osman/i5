@@ -1,6 +1,7 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
 import styles from './header.module.css'
 import logo64 from '../images/logo64.png'
+import { useApi } from '../lib/api'
 
 function ActiveLink({ children, href }) {
   return (
@@ -14,6 +15,21 @@ function ActiveLink({ children, href }) {
 }
 
 export default function Header() {
+
+  const api = useApi()
+  const navigate = useNavigate()
+
+  function handleLogout(e) {
+    e.preventDefault()
+    api.fetch('/auth/logout', {})
+      .then(() => {
+        navigate('/login')
+      })
+      .catch((e) => {
+        //...
+      })
+  }
+
   return (
     <div className={styles.header_outer}>
       <div className="container">
@@ -25,7 +41,7 @@ export default function Header() {
           </div>
           <div className={styles.separator} />
           <div className={styles.nav}>
-            <a href="#" >Logout</a>
+            <a href="#" onClick={handleLogout}>Logout</a>
           </div>
         </div>
       </div>

@@ -1,3 +1,7 @@
+* {
+  box-sizing: border-box;
+}
+
 html,
 body,
 #root {
@@ -18,6 +22,18 @@ a {
   text-decoration: none;
 }
 
+.button {
+  background-color: #e0e0e0;
+  border: none;
+  padding: 12px 30px;
+  text-decoration: none;
+}
+
+.button:hover:not([disabled]) {
+  background-color: #c0c0c0;
+  cursor: pointer;
+}
+
 .container {
   margin: auto;
 }
@@ -35,18 +51,24 @@ a {
 .form-control input[type=text],
 .form-control input[type=password] {
   border: none;
-  border-bottom: 1px solid black;
-  display: block;
+  border-bottom: 1px solid #707070;
   padding: 8px 0;
+  width: 100%;
 }
 
 .form-control input[type=text]:focus,
 .form-control input[type=password]:focus {
+  border-bottom-color: black;
   outline: none;
 }
 
 .secondary {
   color: #707070;
+}
+
+.title {
+  font-size: 36pt;
+  margin-bottom: 24px;
 }
 
 @media (min-width: 940px) {

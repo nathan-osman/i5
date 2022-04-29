@@ -1,0 +1,16 @@
+.form {
+  background-color: white;
+  padding: 32px 24px;
+}
+
+.error {
+  color: #c03030;
+  font-size: 12pt;
+  margin: 16px 0;
+}
+
+@media (min-width: 940px) {
+  .form {
+    width: 400px;
+  }
+}

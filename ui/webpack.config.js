@@ -42,12 +42,13 @@ module.exports = {
   },
   devServer: {
     historyApiFallback: true,
-    proxy: {
-      '/api': {
+    proxy: [
+      {
+        context: ['/api', '/auth'],
         target: 'http://localhost',
         changeOrigin: true,
         ws: true
       }
-    }
+    ]
   }
 }

@@ -1,14 +1,10 @@
 import { Outlet } from 'react-router-dom'
-import Header from './components/header'
-import { WebSocketProvider } from './lib/websocket'
+import { ApiProvider } from './lib/api'
 
 export default function App() {
   return (
-    <WebSocketProvider>
-      <Header />
-      <div className="container">
-        <Outlet />
-      </div>
-    </WebSocketProvider>
+    <ApiProvider>
+      <Outlet />
+    </ApiProvider>
   )
 }
