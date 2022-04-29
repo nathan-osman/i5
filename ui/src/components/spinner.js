@@ -5,7 +5,10 @@ export default function Spinner() {
   return (
     <div className={styles.spinner}>
       <img src={spinner} />
-      <div className={styles.loading}>Loading...</div>
+      <div>
+        <div className={styles.loading}>Loading app</div>
+        <div>Please wait...</div>
+      </div>
     </div>
   )
 }
