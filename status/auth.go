@@ -56,6 +56,10 @@ func (s *Status) authLogin(c *gin.Context) {
 func (s *Status) authLogout(c *gin.Context) {
 	session := sessions.Default(c)
 	session.Delete(sessionUsername)
+	if err := session.Save(); err != nil {
+		failure(c, http.StatusInternalServerError, err.Error())
+		return
+	}
 	success(c)
 }
 
