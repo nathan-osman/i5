@@ -34,7 +34,9 @@ export default function Header() {
     <div className={styles.header_outer}>
       <div className="container">
         <div className={styles.header_inner}>
-          <img src={logo64} className={styles.logo} />
+          <NavLink to="/">
+            <img src={logo64} className={styles.logo} />
+          </NavLink>
           <div className={styles.nav}>
             <ActiveLink href="/containers">Containers</ActiveLink>
             <ActiveLink href="/requests">Requests</ActiveLink>
