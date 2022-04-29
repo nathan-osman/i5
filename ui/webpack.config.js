@@ -14,6 +14,10 @@ module.exports = {
         type: 'asset/resource'
       },
       {
+        test: /\.svg$/,
+        use: 'svg-url-loader'
+      },
+      {
         test: /\.js$/,
         include: path.resolve(__dirname, './src'),
         use: 'babel-loader'
@@ -42,6 +46,7 @@ module.exports = {
       '/api': {
         target: 'http://localhost',
         changeOrigin: true,
+        ws: true
       }
     }
   }
