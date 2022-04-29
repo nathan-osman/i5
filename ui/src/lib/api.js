@@ -34,6 +34,7 @@ function ApiProvider({ children }) {
       }
       throw new HttpError(response, errorMessage)
     }
+    return await response.json()
   }
 
   const api = {
