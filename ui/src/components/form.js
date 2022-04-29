@@ -6,7 +6,7 @@ export default function Form({ children, title, disabled, errorMessage, onSubmit
       <div className="title">{title}</div>
       {errorMessage !== null &&
         <div className={styles.error}>
-          Error:{' '}{errorMessage}
+          Error: {errorMessage}
         </div>
       }
       {children}

@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
-import { useApi } from '../lib/api'
 import { Outlet, useNavigate } from 'react-router-dom'
 import Header from './header'
 import Splash from './splash'
 import Spinner from './spinner'
+import { useApi } from '../lib/api'
 
 export default function Page() {
 

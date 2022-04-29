@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom'
-import styles from './header.module.css'
-import logo64 from '../images/logo64.png'
 import { useApi } from '../lib/api'
+import logo64 from '../images/logo64.png'
+import styles from './header.module.css'
 
 function ActiveLink({ children, href }) {
   return (
@@ -26,7 +26,7 @@ export default function Header() {
         navigate('/login')
       })
       .catch((e) => {
-        //...
+        // TODO: use new message interface
       })
   }
 
