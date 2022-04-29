@@ -1,0 +1,10 @@
+.spinner {
+  align-items: center;
+  display: flex;
+}
+
+.spinner .loading {
+  color: #707070;
+  font-size: 36pt;
+  margin-left: 24px;
+}
