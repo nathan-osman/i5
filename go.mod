@@ -6,8 +6,7 @@ require (
 	github.com/containerd/containerd v1.6.2 // indirect
 	github.com/docker/distribution v2.8.1+incompatible // indirect
 	github.com/docker/docker v20.10.14+incompatible
-	github.com/gin-contrib/cors v1.3.1
-	github.com/gin-contrib/sessions v0.0.4
+	github.com/gin-contrib/sessions v0.0.5
 	github.com/gin-contrib/static v0.0.1
 	github.com/gin-gonic/gin v1.7.7
 	github.com/go-chi/chi v1.5.4

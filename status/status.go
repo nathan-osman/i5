@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-contrib/static"
@@ -54,15 +53,6 @@ func New(cfg *Config) (*Status, error) {
 		sessions.Sessions(sessionName, store),
 		static.Serve("/", ui.EmbedFileSystem{FileSystem: http.FS(ui.Content)}),
 	)
-	if cfg.Debug {
-		r.Use(
-			cors.New(cors.Config{
-				AllowOrigins:     []string{"http://localhost:3000"},
-				AllowHeaders:     []string{"content-type"},
-				AllowCredentials: true,
-			}),
-		)
-	}
 	auth := r.Group("/auth")
 	{
 		auth.POST("/login", s.authLogin)
