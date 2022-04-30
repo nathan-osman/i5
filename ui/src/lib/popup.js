@@ -17,12 +17,23 @@ function PopupProvider({ children }) {
     error: text => show({ type: PT_ERROR, text: `Error: ${text}` })
   }
 
+  function handleClick(i) {
+    setMessages([
+      ...messages.slice(0, i),
+      ...messages.slice(i + 1)
+    ])
+  }
+
   return (
     <PopupContext.Provider value={popup}>
       {children}
       <div className={styles.container}>
         {messages.map((message, i) =>
-          <div key={i} className={`${styles.message} ${styles[message.type]}`}>
+          <div
+            key={i}
+            className={`${styles.message} ${styles[message.type]}`}
+            onClick={() => handleClick(i)}
+          >
             {message.text}
           </div>
         )}

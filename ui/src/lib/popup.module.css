@@ -9,7 +9,12 @@
 }
 
 .message {
+  cursor: pointer;
   padding: 16px;
+}
+
+.message:hover {
+  opacity: 0.5;
 }
 
 .message.error {
