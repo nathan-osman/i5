@@ -1,36 +1,14 @@
-import { useEffect, useMemo } from 'react'
-import { usePopup } from '../lib/popup'
+import RequestList from '../components/requestlist'
+import { WebSocketProvider } from '../lib/websocket'
 
 export default function Requests() {
-
-  const popup = usePopup()
-
-  const webSocket = useMemo(() => {
-    const secure = location.protocol.startsWith('https')
-    const webSocket = new WebSocket(
-      `${secure ? 'wss' : 'ws'}://${location.host}/api/ws`
-    )
-    webSocket.onopen = () => {
-      //...
-    }
-    webSocket.onerror = (e) => {
-      popup.error(e.message)
-    }
-    webSocket.onclose = () => {
-      popup.info("WebSocket connection lost.")
-    }
-    return webSocket
-  }, [])
-
-  useEffect(() => {
-    return () => {
-      webSocket.close()
-    }
-  }, [])
-
   return (
-    <>
+    <WebSocketProvider>
       <div className="title">Requests</div>
-    </>
+      <div className="secondary">
+        This page enables you to watch incoming requests to the i5 server in realtime. Detailed information about the inidividual requests are included as well as aggregate information that accumulates while this page is open.
+      </div>
+      <RequestList />
+    </WebSocketProvider>
   )
 }
