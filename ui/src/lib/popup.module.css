@@ -1,0 +1,24 @@
+.container {
+  bottom: 0;
+  display: grid;
+  padding: 0 32px 32px 0;
+  position: fixed;
+  right: 0;
+  row-gap: 16px;
+  z-index: 1;
+}
+
+.message {
+  padding: 16px;
+}
+
+.message.error {
+  background-color: #c03030;
+  color: white;
+}
+
+@media (min-width: 940px) {
+  .message {
+    max-width: 400px;
+  }
+}

@@ -4,6 +4,7 @@ import Header from './header'
 import Splash from './splash'
 import Spinner from './spinner'
 import { useApi } from '../lib/api'
+import { PopupProvider } from '../lib/popup'
 
 export default function Page() {
 
@@ -29,11 +30,11 @@ export default function Page() {
   }
 
   return (
-    <>
+    <PopupProvider>
       <Header />
       <div className="container">
         <Outlet />
       </div>
-    </>
+    </PopupProvider>
   )
 }

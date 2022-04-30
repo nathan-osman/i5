@@ -2,6 +2,7 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import { useApi } from '../lib/api'
 import logo64 from '../images/logo64.png'
 import styles from './header.module.css'
+import { usePopup } from '../lib/popup'
 
 function ActiveLink({ children, href }) {
   return (
@@ -17,6 +18,7 @@ function ActiveLink({ children, href }) {
 export default function Header() {
 
   const api = useApi()
+  const popup = usePopup()
   const navigate = useNavigate()
 
   function handleLogout(e) {
@@ -26,7 +28,7 @@ export default function Header() {
         navigate('/login')
       })
       .catch((e) => {
-        // TODO: use new message interface
+        popup.error(e.message)
       })
   }
 
