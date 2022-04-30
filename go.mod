@@ -14,7 +14,7 @@ require (
 	github.com/howeyc/gopass v0.0.0-20210920133722-c8aef6fb66ef
 	github.com/lib/pq v1.10.5
 	github.com/nathan-osman/geolocator v1.0.0
-	github.com/nathan-osman/go-herald v0.0.0-20220406061515-534bf8071299
+	github.com/nathan-osman/go-herald v0.0.0-20220430073028-0f07e7b1071f
 	github.com/sirupsen/logrus v1.8.1
 	github.com/urfave/cli/v2 v2.5.1
 	go.etcd.io/bbolt v1.3.6
