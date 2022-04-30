@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import prettyBytes from 'pretty-bytes'
 import { useWebSocket } from '../lib/websocket'
+import Client from './client'
 import Table from './table'
 import styles from './requestlist.module.css'
 
@@ -13,7 +14,11 @@ export default function RequestList() {
     },
     {
       title: "Client",
-      render: row => "-"
+      render: row => <Client
+        remoteAddr={row.remote_addr}
+        countryCode={row.country_code}
+        countryName={row.country_name}
+      />
     },
     {
       title: "Request",
