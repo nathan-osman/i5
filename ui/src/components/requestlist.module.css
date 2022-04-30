@@ -1,0 +1,32 @@
+.request {
+  column-gap: 8px;
+  display: grid;
+  grid-template-columns: min-content min-content 1fr;
+}
+
+.request .method {
+  background-color: #707070;
+  border-radius: 3px;
+  color: white;
+  padding: 0 4px;
+}
+
+.request .host {
+  font-weight: bold;
+}
+
+.status {
+  font-weight: bold;
+}
+
+.status_good {
+  color: #00a000;
+}
+
+.status_info {
+  color: #707070;
+}
+
+.status_bad {
+  color: #c03030;
+}

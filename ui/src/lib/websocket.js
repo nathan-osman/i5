@@ -7,11 +7,18 @@ function WebSocketProvider({ children }) {
 
   const popup = usePopup()
 
+  const eventTarget = new EventTarget()
+
   const webSocket = useMemo(() => {
     const secure = location.protocol.startsWith('https')
     const webSocket = new WebSocket(
       `${secure ? 'wss' : 'ws'}://${location.host}/api/ws`
     )
+    webSocket.onmessage = (e) => {
+      const json = JSON.parse(e.data)
+      const event = new CustomEvent(json.type, { detail: json.data })
+      eventTarget.dispatchEvent(event)
+    }
     webSocket.onerror = (e) => {
       popup.error(e.message)
     }
@@ -30,7 +37,7 @@ function WebSocketProvider({ children }) {
   }, [])
 
   return (
-    <WebSocketContext.Provider value={webSocket}>
+    <WebSocketContext.Provider value={eventTarget}>
       {children}
     </WebSocketContext.Provider>
   )
