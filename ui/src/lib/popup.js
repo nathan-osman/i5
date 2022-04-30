@@ -1,6 +1,7 @@
 import { createContext, useContext, useState } from 'react'
 import styles from './popup.module.css'
 
+const PT_INFO = 'info'
 const PT_ERROR = 'error'
 
 const PopupContext = createContext(null)
@@ -14,6 +15,7 @@ function PopupProvider({ children }) {
   }
 
   const popup = {
+    info: text => show({ type: PT_INFO, text: `Info: ${text}` }),
     error: text => show({ type: PT_ERROR, text: `Error: ${text}` })
   }
 

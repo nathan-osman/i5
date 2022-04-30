@@ -9,6 +9,7 @@
 }
 
 .message {
+  color: white;
   cursor: pointer;
   padding: 16px;
 }
@@ -17,9 +18,12 @@
   opacity: 0.5;
 }
 
+.message.info {
+  background-color: #3030c0;
+}
+
 .message.error {
   background-color: #c03030;
-  color: white;
 }
 
 @media (min-width: 940px) {
