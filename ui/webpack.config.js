@@ -40,6 +40,9 @@ module.exports = {
     clean: true,
     filename: '[name].[contenthash].js'
   },
+  performance: {
+    hints: false,
+  },
   devServer: {
     historyApiFallback: true,
     proxy: [
