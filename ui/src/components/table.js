@@ -14,15 +14,24 @@ export default function Table({ headers, rows }) {
         </tr>
       </thead>
       <tbody>
-        {rows.map((row, i) =>
-          <tr key={i}>
-            {headers.map((header, i) =>
-              <td key={i}>
-                {header.render(row)}
-              </td>
-            )}
+        {rows.length ?
+          rows.map((row, i) =>
+            <tr key={i}>
+              {headers.map((header, i) =>
+                <td key={i}>
+                  {header.render(row)}
+                </td>
+              )}
+            </tr>
+          ) :
+          <tr>
+            <td colSpan={headers.length} className={styles.empty}>
+              <span className="secondary">
+                Table is currently empty
+              </span>
+            </td>
           </tr>
-        )}
+        }
       </tbody>
     </table>
   )

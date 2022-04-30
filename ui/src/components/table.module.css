@@ -4,16 +4,21 @@
   width: 100%;
 }
 
-.table thead th,
-.table tbody td {
+.table th,
+.table td {
   padding: 8px;
 }
 
-.table thead th {
+.table th {
   border-bottom: 1px solid black;
   text-align: left;
 }
 
 .table tbody tr:nth-of-type(odd) {
   background-color: #f0f0f0;
+}
+
+.table td.empty {
+  padding: 64px 16px;
+  text-align: center;
 }
