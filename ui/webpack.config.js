@@ -1,5 +1,6 @@
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const SpriteSmithPlugin = require('webpack-spritesmith')
 const TerserPlugin = require('terser-webpack-plugin')
 
 module.exports = {
@@ -27,6 +28,16 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, 'public/index.html')
+    }),
+    new SpriteSmithPlugin({
+      src: {
+        cwd: path.resolve(__dirname, 'src/images/flags'),
+        glob: '*.png'
+      },
+      target: {
+        image: path.resolve(__dirname, 'src/images/flags.png'),
+        css: path.resolve(__dirname, 'src/images/flags.css')
+      }
     })
   ],
   optimization: {
