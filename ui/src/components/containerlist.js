@@ -13,7 +13,11 @@ export default function ContainerList() {
     {
       title: "Domain",
       expand: true,
-      render: row => row.domain
+      render: row => (
+        <a href={`https://${row.domain}`} target="_blank">
+          {row.domain}
+        </a>
+      )
     },
     {
       title: "Status",
