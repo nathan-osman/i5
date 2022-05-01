@@ -1,5 +1,4 @@
 import '@fontsource/source-sans-pro'
-import '@fontsource/source-sans-pro/300.css'
 import 'core-js/stable'
 import 'regenerator-runtime/runtime'
 import { createRoot } from 'react-dom/client'

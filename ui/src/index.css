@@ -10,7 +10,6 @@ body,
 
 body {
   font-family: 'Source Sans Pro', sans-serif;
-  font-weight: 300;
   margin: 0;
 }
 
@@ -64,6 +63,7 @@ a {
 }
 
 .secondary {
+  color: #707070;
   margin-bottom: 24px;
 }
 
