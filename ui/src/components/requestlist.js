@@ -10,7 +10,14 @@ export default function RequestList() {
   const headers = [
     {
       title: "Time",
-      render: row => "-"
+      render: row => <>
+        {row.time.getHours().toString().padStart(2, '0')}:
+        {row.time.getMinutes().toString().padStart(2, '0')}:
+        {row.time.getSeconds().toString().padStart(2, '0')}
+        <small className="secondary">
+          .{row.time.getMilliseconds().toString().padStart(3, '0')}
+        </small>
+      </>
     },
     {
       title: "Client",
@@ -27,7 +34,7 @@ export default function RequestList() {
           <div className={styles.request}>
             <div className={styles.method}>{row.method}</div>
             <div className={styles.host}>{row.host}</div>
-            <div className={styles.path}>{row.path}</div>
+            <div className={styles.path} title={row.path}>{row.path}</div>
           </div>
         )
       }
@@ -65,17 +72,19 @@ export default function RequestList() {
   const [requests, setRequests] = useState([])
 
   useEffect(() => {
-
     function processResponse(e) {
-      setRequests((requests) => [e.detail, ...requests])
+      setRequests((requests) => [
+        {
+          ...e.detail,
+          time: new Date()
+        },
+        ...requests
+      ].slice(0, 16))
     }
-
     webSocket.addEventListener('response', processResponse)
-
     return () => {
       webSocket.removeEventListener('response', processResponse)
     }
-
   }, [])
 
   return (

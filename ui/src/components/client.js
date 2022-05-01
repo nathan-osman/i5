@@ -4,7 +4,7 @@ import '../images/flags.css'
 export default function Client({ remoteAddr, countryCode, countryName }) {
   return (
     <div className={styles.client}>
-      <div className={`icon icon-${countryCode}`} />
+      <div className={`icon icon-${countryCode}`} title={countryName} />
       {remoteAddr}
     </div>
   )

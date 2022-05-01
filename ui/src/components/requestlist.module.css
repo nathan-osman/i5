@@ -15,6 +15,13 @@
   font-weight: bold;
 }
 
+.request .path {
+  color: #707070;
+  mask-image: linear-gradient(90deg, #000 90%, transparent);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
 .status {
   font-weight: bold;
 }
