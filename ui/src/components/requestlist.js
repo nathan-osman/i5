@@ -4,6 +4,7 @@ import { useWebSocket } from '../lib/websocket'
 import Client from './client'
 import Table from './table'
 import styles from './requestlist.module.css'
+import Stat from './stat'
 
 export default function RequestList() {
 
@@ -58,22 +59,24 @@ export default function RequestList() {
     },
     {
       title: "Size",
-      render: row => {
-        try {
-          return prettyBytes(parseInt(row.content_length))
-        } catch {
-          return "-"
-        }
-      }
+      render: row => prettyBytes(parseInt(row.content_length) || 0)
     }
   ]
 
   const webSocket = useWebSocket()
 
+  const [numRequests, setNumRequests] = useState(0)
+  const [bandwidth, setBandwidth] = useState(0)
   const [requests, setRequests] = useState([])
 
   useEffect(() => {
     function processResponse(e) {
+      setNumRequests(numRequests => numRequests + 1)
+      try {
+        setBandwidth(bandwidth => {
+          return bandwidth + (parseInt(e.detail.content_length) || 0)
+        })
+      } catch { }
       setRequests((requests) => [
         {
           ...e.detail,
@@ -90,6 +93,16 @@ export default function RequestList() {
 
   return (
     <>
+      <div className={styles.stats}>
+        <Stat
+          title="request(s)"
+          value={numRequests}
+        />
+        <Stat
+          title="bandwidth"
+          value={prettyBytes(bandwidth)}
+        />
+      </div>
       <Table
         headers={headers}
         rows={requests}
