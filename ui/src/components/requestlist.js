@@ -47,7 +47,7 @@ export default function RequestList() {
         let className = styles.status_info
         if (row.status_code >= 200 && row.status_code < 300) {
           className = styles.status_good
-        } else if (row.status_Code >= 400) {
+        } else if (row.status_code >= 400) {
           className = styles.status_bad
         }
         return <span className={`${styles.status} ${className}`}>{row.status}</span>
