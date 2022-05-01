@@ -16,7 +16,7 @@ RUN npm run build
 FROM golang:latest
 ENV CGO_ENABLED=0
 ADD . /src
-COPY --from=0 /src/build /src/ui/build
+COPY --from=0 /src/dist /src/ui/dist
 WORKDIR /src
 RUN go build
 
