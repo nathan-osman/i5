@@ -1,0 +1,11 @@
+.stat {
+  text-align: center;
+}
+
+.stat .value {
+  font-size: 42pt;
+}
+
+.stat .title {
+  font-size: 12pt;
+}
