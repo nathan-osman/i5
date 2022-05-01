@@ -1,3 +1,7 @@
+.status {
+  font-weight: bold;
+}
+
 .running {
   color: #00a000;
 }

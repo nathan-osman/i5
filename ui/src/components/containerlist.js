@@ -21,9 +21,14 @@ export default function ContainerList() {
     },
     {
       title: "Status",
-      render: row => row.running ?
-        <div className={styles.running}>Running</div> :
-        <div className={styles.stopped}>Stopped</div>
+      render: row => (
+        <div className={styles.status}>
+          {row.running ?
+            <span className={styles.running}>Running</span> :
+            <span className={styles.stopped}>Stopped</span>
+          }
+        </div>
+      )
     },
     {
       title: "Tools",
