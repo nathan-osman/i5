@@ -9,6 +9,14 @@ export default function Table({ headers, rows }) {
     return 'auto'
   }).join(' ')
 
+  let colStyles = headers.map(row => {
+    let css = {}
+    if (row.right) {
+      css['textAlign'] = 'right'
+    }
+    return css
+  })
+
   let rowToggle = false
 
   return (
@@ -17,7 +25,11 @@ export default function Table({ headers, rows }) {
       style={{ gridTemplateColumns: colTemplate }}
     >
       {headers.map((header, i) =>
-        <div key={i} className={`${styles.cell} ${styles.header}`}>
+        <div
+          key={i}
+          className={`${styles.cell} ${styles.header}`}
+          style={colStyles[i]}
+        >
           {header.title}
         </div>
       )}
@@ -27,7 +39,9 @@ export default function Table({ headers, rows }) {
           return headers.map((header, j) =>
             <div
               key={[i, j]}
-              className={styles.cell + (rowToggle ? ` ${styles.striped}` : '')}>
+              className={styles.cell + (rowToggle ? ` ${styles.striped}` : '')}
+              style={colStyles[j]}
+            >
               {header.render(row)}
             </div>
           )

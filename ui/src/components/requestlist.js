@@ -59,6 +59,7 @@ export default function RequestList() {
     },
     {
       title: "Size",
+      right: true,
       render: row => prettyBytes(parseInt(row.content_length) || 0)
     }
   ]
