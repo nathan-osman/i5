@@ -1,24 +1,35 @@
-.table {
-  border-collapse: collapse;
-  font-size: 12pt;
-  width: 100%;
-}
-
-.table th,
-.table td {
-  padding: 8px;
-}
-
-.table th {
-  border-bottom: 1px solid black;
-  text-align: left;
-}
-
+/*
 .table tbody tr:nth-of-type(odd) {
   background-color: #f0f0f0;
 }
 
 .table td.empty {
   padding: 64px 16px;
+  text-align: center;
+}
+*/
+
+.table {
+  display: grid;
+  font-size: 12pt;
+}
+
+.table .cell {
+  padding: 8px;
+}
+
+.table .cell.striped {
+  background-color: #f0f0f0;
+}
+
+.table .header {
+  border-bottom: 1px solid black;
+  font-weight: bold;
+}
+
+.table .empty {
+  color: #707070;
+  grid-column: 1 / -1;
+  padding: 64px 0;
   text-align: center;
 }

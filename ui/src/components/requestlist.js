@@ -29,6 +29,7 @@ export default function RequestList() {
     },
     {
       title: "Request",
+      expand: true,
       render: row => {
         return (
           <div className={styles.request}>

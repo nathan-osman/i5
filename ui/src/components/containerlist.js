@@ -12,6 +12,7 @@ export default function ContainerList() {
     },
     {
       title: "Domain",
+      expand: true,
       render: row => row.domain
     },
     {
