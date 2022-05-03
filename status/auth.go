@@ -24,7 +24,7 @@ func (s *Status) authLogin(c *gin.Context) {
 		failure(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	if err := s.db.CreateUser(params.Username, params.Password); err != nil {
+	if err := s.db.LoginUser(params.Username, params.Password); err != nil {
 		failure(c, http.StatusUnauthorized, err.Error())
 		return
 	}
