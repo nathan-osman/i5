@@ -1,8 +1,9 @@
+import { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useApi } from '../lib/api'
+import { usePopup } from '../lib/popup'
 import logo64 from '../images/logo64.png'
 import styles from './header.module.css'
-import { usePopup } from '../lib/popup'
 
 function ActiveLink({ children, href }) {
   return (
@@ -21,6 +22,8 @@ export default function Header() {
   const popup = usePopup()
   const navigate = useNavigate()
 
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+
   function handleLogout(e) {
     e.preventDefault()
     api.fetch('/auth/logout', {})
@@ -32,20 +35,40 @@ export default function Header() {
       })
   }
 
+  function handleToggle() {
+    setIsMenuOpen(isMenuOpen => !isMenuOpen)
+  }
+
+  function handleClose() {
+    setIsMenuOpen(false)
+  }
+
   return (
     <div className={styles.header_outer}>
       <div className="container">
         <div className={styles.header_inner}>
-          <NavLink to="/">
-            <img src={logo64} className={styles.logo} />
-          </NavLink>
           <div className={styles.nav}>
-            <ActiveLink href="/containers">Containers</ActiveLink>
-            <ActiveLink href="/requests">Requests</ActiveLink>
+            <NavLink to="/" onClick={handleClose}>
+              <img src={logo64} className={styles.logo} />
+            </NavLink>
+            <div className={styles.toggle} onClick={handleToggle}>
+              <div className={styles.i} />
+              <div className={styles.i} />
+              <div className={styles.i} />
+            </div>
           </div>
-          <div className={styles.separator} />
-          <div className={styles.nav}>
-            <a href="#" onClick={handleLogout}>Logout</a>
+          <div
+            className={styles.menu_outer + (isMenuOpen ? '' : ` ${styles.hidden}`)}
+            onClick={handleClose}
+          >
+            <div className={styles.menu_inner}>
+              <ActiveLink href="/containers">Containers</ActiveLink>
+              <ActiveLink href="/requests">Requests</ActiveLink>
+            </div>
+            <div className={styles.separator} />
+            <div className={styles.menu_inner}>
+              <a href="#" onClick={handleLogout}>Logout</a>
+            </div>
           </div>
         </div>
       </div>
