@@ -32,13 +32,7 @@ The resulting files can be found in `ui/build/`.
 
 #### Compiling the Application
 
-The application is written in [Go](https://golang.org/). Prior to compilation, the user interface files from the previous step need to be prepared for embedding in the executable. This is accomplished by running the following command in the source root directory:
-
-```shell
-go generate
-```
-
-Now the application can be compiled with:
+The server application itself is written in [Go](https://golang.org/) and can be compiled with:
 
 ```shell
 go build
