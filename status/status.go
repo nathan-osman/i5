@@ -9,11 +9,11 @@ import (
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/nathan-osman/i5/conman"
+	"github.com/nathan-osman/i5/db"
 	"github.com/nathan-osman/i5/dbman"
 	"github.com/nathan-osman/i5/dockmon"
 	"github.com/nathan-osman/i5/logger"
 	"github.com/nathan-osman/i5/ui"
-	bolt "go.etcd.io/bbolt"
 )
 
 const sessionName = "status"
@@ -24,23 +24,19 @@ type Status struct {
 	conman    *conman.Conman
 	dbman     *dbman.Manager
 	logger    *logger.Logger
-	db        *bolt.DB
+	db        *db.DB
 	startup   int64
 }
 
 // New creates a new status container.
-func New(cfg *Config) (*Status, error) {
-	d, err := openDB(cfg.StorageDir)
-	if err != nil {
-		return nil, err
-	}
+func New(cfg *Config) *Status {
 	var (
 		r = gin.Default()
 		s = &Status{
 			conman:  cfg.Conman,
 			dbman:   cfg.Dbman,
 			logger:  cfg.Logger,
-			db:      d,
+			db:      cfg.DB,
 			startup: time.Now().Unix(),
 		}
 		store = cookie.NewStore([]byte(cfg.Key))
@@ -76,7 +72,7 @@ func New(cfg *Config) (*Status, error) {
 		Handler:  r,
 		Running:  true,
 	}
-	return s, nil
+	return s
 }
 
 // Close shuts down the status server.

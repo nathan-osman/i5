@@ -2,6 +2,7 @@ package status
 
 import (
 	"github.com/nathan-osman/i5/conman"
+	"github.com/nathan-osman/i5/db"
 	"github.com/nathan-osman/i5/dbman"
 	"github.com/nathan-osman/i5/logger"
 )
@@ -16,8 +17,8 @@ type Config struct {
 	Domain string
 	// Insecure allows insecure connections to the server.
 	Insecure bool
-	// StorageDir indicates where the bbolt database should be stored
-	StorageDir string
+	// DB is a pointer to a DB instance.
+	DB *db.DB
 	// Conman is a pointer to a Conman instance.
 	Conman *conman.Conman
 	// Dbman is a pointer to a db.Manager instance.

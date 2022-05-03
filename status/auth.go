@@ -5,15 +5,12 @@ import (
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
-	bolt "go.etcd.io/bbolt"
-	"golang.org/x/crypto/bcrypt"
 )
 
 const (
 	sessionUsername = "username"
 
-	errInvalidUsernamePassword = "invalid username or password"
-	errUnauthorized            = "you do not have permission to access that page"
+	errUnauthorized = "you do not have permission to access that page"
 )
 
 type authLoginParams struct {
@@ -27,21 +24,8 @@ func (s *Status) authLogin(c *gin.Context) {
 		failure(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	var password []byte
-	s.db.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket(usersBucket)
-		if b == nil {
-			return nil
-		}
-		password = b.Get([]byte(params.Username))
-		return nil
-	})
-	if password == nil {
-		failure(c, http.StatusUnauthorized, errInvalidUsernamePassword)
-		return
-	}
-	if err := bcrypt.CompareHashAndPassword(password, []byte(params.Password)); err != nil {
-		failure(c, http.StatusUnauthorized, errInvalidUsernamePassword)
+	if err := s.db.CreateUser(params.Username, params.Password); err != nil {
+		failure(c, http.StatusUnauthorized, err.Error())
 		return
 	}
 	session := sessions.Default(c)

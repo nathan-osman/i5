@@ -8,6 +8,7 @@ import (
 
 	"github.com/howeyc/gopass"
 	"github.com/nathan-osman/i5/conman"
+	"github.com/nathan-osman/i5/db"
 	"github.com/nathan-osman/i5/dbman"
 	"github.com/nathan-osman/i5/dockmon"
 	"github.com/nathan-osman/i5/logger"
@@ -142,6 +143,15 @@ func main() {
 				Usage: "create a new user account",
 				Action: func(c *cli.Context) error {
 
+					// Attempt to open the Bolt database
+					d, err := db.New(&db.Config{
+						StorageDir: c.String("storage-dir"),
+					})
+					if err != nil {
+						return err
+					}
+					defer d.Close()
+
 					// Prompt for the username
 					var username string
 					fmt.Print("Username? ")
@@ -155,11 +165,7 @@ func main() {
 					}
 
 					// Create the user
-					if err := status.CreateUser(
-						c.String("storage-dir"),
-						username,
-						string(p),
-					); err != nil {
+					if err := d.CreateUser(username, string(p)); err != nil {
 						return nil
 					}
 
@@ -170,6 +176,15 @@ func main() {
 			},
 		},
 		Action: func(c *cli.Context) error {
+
+			// Attempt to open the Bolt database
+			d, err := db.New(&db.Config{
+				StorageDir: c.String("storage-dir"),
+			})
+			if err != nil {
+				return err
+			}
+			defer d.Close()
 
 			// Check if the status website was enabled
 			var statusDomain = c.String("status-domain")
@@ -197,7 +212,7 @@ func main() {
 			defer dm.Close()
 
 			// Create the database manager
-			d := dbman.NewManager()
+			dbm := dbman.NewManager()
 
 			// Connect to MySQL if requested
 			if c.Bool("mysql") {
@@ -210,7 +225,7 @@ func main() {
 				if err != nil {
 					return err
 				}
-				d.Register(msql)
+				dbm.Register(msql)
 			}
 
 			// Connect to PostgreSQL if requested
@@ -224,31 +239,28 @@ func main() {
 				if err != nil {
 					return err
 				}
-				d.Register(psql)
+				dbm.Register(psql)
 			}
 
 			// Create the container manager
 			cm := conman.New(&conman.Config{
 				EventChan: dm.EventChan,
-				Dbman:     d,
+				Dbman:     dbm,
 			})
 			defer cm.Close()
 
-			// If a domain name for the internal server was specified, use it
+			// If a domain name for the status server was specified, use it
 			if statusDomain != "" {
-				s, err := status.New(&status.Config{
-					Key:        c.String("status-key"),
-					Debug:      c.Bool("debug"),
-					Domain:     statusDomain,
-					Insecure:   c.Bool("status-insecure"),
-					StorageDir: c.String("storage-dir"),
-					Conman:     cm,
-					Dbman:      d,
-					Logger:     l,
+				s := status.New(&status.Config{
+					Key:      c.String("status-key"),
+					Debug:    c.Bool("debug"),
+					Domain:   statusDomain,
+					Insecure: c.Bool("status-insecure"),
+					DB:       d,
+					Conman:   cm,
+					Dbman:    dbm,
+					Logger:   l,
 				})
-				if err != nil {
-					return err
-				}
 				defer s.Close()
 				cm.Add(s.Container)
 			}
