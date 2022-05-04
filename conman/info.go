@@ -6,6 +6,7 @@ import (
 
 // Info stores information for a specific container.
 type Info struct {
+	ID      string `json:"id"`
 	Name    string `json:"name"`
 	Domain  string `json:"domain"`
 	Running bool   `json:"running"`
@@ -20,6 +21,7 @@ func (c *Conman) Info() []*Info {
 		con := v.(*dockmon.Container)
 		if con.ID != "" {
 			ret = append(ret, &Info{
+				ID:      con.ID,
 				Name:    con.Name,
 				Domain:  d,
 				Running: con.Running,

@@ -22,6 +22,7 @@ const sessionName = "status"
 type Status struct {
 	Container *dockmon.Container
 	conman    *conman.Conman
+	dockmon   *dockmon.Dockmon
 	dbman     *dbman.Manager
 	logger    *logger.Logger
 	db        *db.DB
@@ -34,6 +35,7 @@ func New(cfg *Config) *Status {
 		r = gin.Default()
 		s = &Status{
 			conman:  cfg.Conman,
+			dockmon: cfg.Dockmon,
 			dbman:   cfg.Dbman,
 			logger:  cfg.Logger,
 			db:      cfg.DB,
@@ -59,6 +61,7 @@ func New(cfg *Config) *Status {
 		api.Use(requireLogin)
 		api.GET("/status", s.apiStatus)
 		api.GET("/containers", s.apiContainers)
+		api.POST("/containers/:id/state", s.apiContainersState)
 		api.GET("/ws", s.webSocket)
 	}
 	r.NoRoute(func(c *gin.Context) {

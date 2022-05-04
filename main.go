@@ -258,6 +258,7 @@ func main() {
 					Insecure: c.Bool("status-insecure"),
 					DB:       d,
 					Conman:   cm,
+					Dockmon:  dm,
 					Dbman:    dbm,
 					Logger:   l,
 				})

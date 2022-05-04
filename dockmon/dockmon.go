@@ -196,6 +196,24 @@ func New(cfg *Config) (*Dockmon, error) {
 	return d, nil
 }
 
+// StartContainer attempts to start the specified container.
+func (d *Dockmon) StartContainer(ctx context.Context, id string) error {
+	return d.client.ContainerStart(
+		ctx,
+		id,
+		types.ContainerStartOptions{},
+	)
+}
+
+// StopContainer attempts to stop the specified container.
+func (d *Dockmon) StopContainer(ctx context.Context, id string) error {
+	return d.client.ContainerStop(
+		ctx,
+		id,
+		nil,
+	)
+}
+
 // Close shuts down the connection to the Docker daemon.
 func (d *Dockmon) Close() {
 	d.closeFunc()

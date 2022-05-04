@@ -4,6 +4,7 @@ import (
 	"github.com/nathan-osman/i5/conman"
 	"github.com/nathan-osman/i5/db"
 	"github.com/nathan-osman/i5/dbman"
+	"github.com/nathan-osman/i5/dockmon"
 	"github.com/nathan-osman/i5/logger"
 )
 
@@ -21,6 +22,8 @@ type Config struct {
 	DB *db.DB
 	// Conman is a pointer to a Conman instance.
 	Conman *conman.Conman
+	// Dockmon is a pointer to a Dockmon instance.
+	Dockmon *dockmon.Dockmon
 	// Dbman is a pointer to a db.Manager instance.
 	Dbman *dbman.Manager
 	// Logger is a pointer to a Logger instance.

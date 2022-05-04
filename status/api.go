@@ -1,11 +1,19 @@
 package status
 
 import (
+	"context"
 	"net/http"
 	"sort"
 
 	"github.com/gin-gonic/gin"
 	"github.com/nathan-osman/i5/conman"
+)
+
+const (
+	containerActionStart = "start"
+	containerActionStop  = "stop"
+
+	errInvalidAction = "invalid action specified"
 )
 
 type apiStatusResponse struct {
@@ -28,6 +36,36 @@ func (s *Status) apiContainers(c *gin.Context) {
 	containers := s.conman.Info()
 	sort.Sort(byName(containers))
 	c.JSON(http.StatusOK, containers)
+}
+
+type apiContainerStateParams struct {
+	Action string `json:"action"`
+}
+
+func (s *Status) apiContainersState(c *gin.Context) {
+	var (
+		id     = c.Param("id")
+		params = &apiContainerStateParams{}
+	)
+	if err := c.ShouldBindJSON(params); err != nil {
+		failure(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	var fn func(context.Context, string) error
+	switch params.Action {
+	case containerActionStart:
+		fn = s.dockmon.StartContainer
+	case containerActionStop:
+		fn = s.dockmon.StopContainer
+	default:
+		failure(c, http.StatusBadRequest, errInvalidAction)
+		return
+	}
+	if err := fn(c.Request.Context(), id); err != nil {
+		failure(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	success(c)
 }
 
 func (s *Status) webSocket(c *gin.Context) {
