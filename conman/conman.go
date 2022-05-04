@@ -54,13 +54,13 @@ func (c *Conman) run() {
 		case e := <-c.eventChan:
 			switch e.Action {
 			case dockmon.Create:
-				c.Add(e.Container)
+				c.addContainer(e.Container)
 			case dockmon.Destroy:
-				c.Remove(e.Container)
+				c.removeContainer(e.Container)
 			case dockmon.Start:
-				c.ToggleState(e.Container, true)
+				c.toggleContainerState(e.Container, true)
 			case dockmon.Die:
-				c.ToggleState(e.Container, false)
+				c.toggleContainerState(e.Container, false)
 			}
 		case <-c.closeChan:
 			return
@@ -82,7 +82,7 @@ func New(cfg *Config) *Conman {
 	return c
 }
 
-func (c *Conman) Add(con *dockmon.Container) {
+func (c *Conman) addContainer(con *dockmon.Container) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 	for _, domain := range con.Domains {
@@ -96,7 +96,7 @@ func (c *Conman) Add(con *dockmon.Container) {
 	}
 }
 
-func (c *Conman) Remove(con *dockmon.Container) {
+func (c *Conman) removeContainer(con *dockmon.Container) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 	for _, domain := range con.Domains {
@@ -105,7 +105,7 @@ func (c *Conman) Remove(con *dockmon.Container) {
 	}
 }
 
-func (c *Conman) ToggleState(con *dockmon.Container, running bool) {
+func (c *Conman) toggleContainerState(con *dockmon.Container, running bool) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 	for _, domain := range con.Domains {
