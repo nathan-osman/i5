@@ -1,7 +1,10 @@
 import { useState } from 'react'
 import Data from './data'
 import Table from './table'
+import Tool from './tool'
 import styles from './containerlist.module.css'
+import startIcon from '../images/icons/start.svg'
+import stopIcon from '../images/icons/stop.svg'
 
 export default function ContainerList() {
 
@@ -32,7 +35,18 @@ export default function ContainerList() {
     },
     {
       title: "Tools",
-      render: row => 'TODO'
+      right: true,
+      render: row => row.running ?
+        <Tool
+          src={stopIcon}
+          url={`/api/containers/${row.id}/state`}
+          data={{ action: 'stop' }}
+        /> :
+        <Tool
+          src={startIcon}
+          url={`/api/containers/${row.id}/state`}
+          data={{ action: 'start' }}
+        />
     }
   ]
 

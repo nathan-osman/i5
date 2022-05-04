@@ -1,0 +1,8 @@
+.tool {
+  cursor: pointer;
+  width: 24px;
+}
+
+.tool:hover {
+  opacity: 0.5;
+}
