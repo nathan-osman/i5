@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/nathan-osman/i5/container"
 	"github.com/nathan-osman/i5/dbman"
 	"github.com/nathan-osman/i5/dockmon"
 	"github.com/nathan-osman/i5/util"
@@ -26,7 +27,7 @@ type Conman struct {
 	closedChan chan bool
 }
 
-func (c *Conman) initDatabase(con *dockmon.Container) error {
+func (c *Conman) initDatabase(con *container.Container) error {
 	d, err := c.dbman.Get(con.Database.Driver)
 	if err != nil {
 		return err
@@ -84,7 +85,7 @@ func New(cfg *Config) *Conman {
 	return c
 }
 
-func (c *Conman) Add(con *dockmon.Container) {
+func (c *Conman) Add(con *container.Container) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 	c.idMap.Insert(con.ID, con)
@@ -99,7 +100,7 @@ func (c *Conman) Add(con *dockmon.Container) {
 	}
 }
 
-func (c *Conman) Remove(con *dockmon.Container) {
+func (c *Conman) Remove(con *container.Container) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 	c.idMap.Remove(con.ID)
@@ -109,7 +110,7 @@ func (c *Conman) Remove(con *dockmon.Container) {
 	}
 }
 
-func (c *Conman) ToggleState(con *dockmon.Container, running bool) {
+func (c *Conman) ToggleState(con *container.Container, running bool) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 	c.idMap.Insert(con.ID, con)
@@ -120,11 +121,11 @@ func (c *Conman) ToggleState(con *dockmon.Container, running bool) {
 }
 
 // Lookup attempts to retrieve the container for the provided domain name.
-func (c *Conman) Lookup(name string) (*dockmon.Container, error) {
+func (c *Conman) Lookup(name string) (*container.Container, error) {
 	c.mutex.RLock()
 	defer c.mutex.RUnlock()
 	if v, ok := c.domainMap[name]; ok {
-		return v.(*dockmon.Container), nil
+		return v.(*container.Container), nil
 	} else {
 		return nil, ErrInvalidDomain
 	}

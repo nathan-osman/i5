@@ -9,7 +9,6 @@ import (
 	"path"
 
 	"github.com/nathan-osman/i5/conman"
-	"github.com/nathan-osman/i5/dockmon"
 	"github.com/nathan-osman/i5/proxy"
 	"github.com/nathan-osman/i5/util"
 	"github.com/sirupsen/logrus"
@@ -18,8 +17,7 @@ import (
 )
 
 const (
-	errContainerNotRunning = "container serving this domain is not running"
-	errInvalidDomainName   = "invalid domain name specified"
+	errInvalidDomainName = "invalid domain name specified"
 
 	letsEncryptStagingURL = "https://acme-staging-v02.api.letsencrypt.org/directory"
 )
@@ -37,18 +35,10 @@ func (s *Server) decide(ctx context.Context, host string) error {
 	return err
 }
 
-func (s *Server) handleRequest(con *dockmon.Container, w http.ResponseWriter, r *http.Request) {
-	if con.Running {
-		con.Handler.ServeHTTP(w, r)
-	} else {
-		util.RenderError(w, r, http.StatusInternalServerError, errContainerNotRunning)
-	}
-}
-
 func (s *Server) handleHTTP(w http.ResponseWriter, r *http.Request) {
 	if con, err := s.conman.Lookup(r.Host); err == nil {
 		if con.Insecure {
-			s.handleRequest(con, w, r)
+			con.Handler.ServeHTTP(w, r)
 		} else {
 			http.Redirect(
 				w, r,
@@ -68,7 +58,7 @@ func (s *Server) handleHTTP(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) handleHTTPS(w http.ResponseWriter, r *http.Request) {
 	if con, err := s.conman.Lookup(r.Host); err == nil {
-		s.handleRequest(con, w, r.WithContext(
+		con.Handler.ServeHTTP(w, r.WithContext(
 			context.WithValue(r.Context(), proxy.ContextSecure, true),
 		))
 	} else {
