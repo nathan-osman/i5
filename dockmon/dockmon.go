@@ -2,11 +2,13 @@ package dockmon
 
 import (
 	"context"
+	"net/http"
 	"time"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/client"
+	"github.com/nathan-osman/i5/container"
 	"github.com/nathan-osman/i5/logger"
 	"github.com/nathan-osman/i5/util"
 	"github.com/sirupsen/logrus"
@@ -21,6 +23,8 @@ const (
 	Start = "start"
 	// Die indicates that a container has been stopped.
 	Die = "die"
+
+	containerStoppedMessage = "The container serving this application is not currently running."
 )
 
 var evtOptions = types.EventsOptions{
@@ -37,7 +41,7 @@ func init() {
 // Event represents a particular action that has been taken on a container.
 type Event struct {
 	Action    string
-	Container *Container
+	Container *container.Container
 }
 
 // Dockmon manages a connection to the Docker daemon and delivers events as containers are created, destroyed, started, and stopped. A list of containers is also kept.
@@ -52,32 +56,56 @@ type Dockmon struct {
 	closedChan chan bool
 }
 
-func (d *Dockmon) sendEvent(action string, con *Container) {
+func (d *Dockmon) loggerCallback(resp *http.Response) {
+	d.logger.LogResponse(resp)
+}
+
+func (d *Dockmon) newContainerFromClient(ctx context.Context, client *client.Client, id string) (*container.Container, error) {
+	containerJSON, err := client.ContainerInspect(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	c, err := container.New(
+		containerJSON.ID,
+		containerJSON.Name[1:],
+		containerJSON.Config.Labels,
+	)
+	if err != nil {
+		return nil, err
+	}
+	if !containerJSON.State.Running {
+		c.Disable(containerStoppedMessage)
+	}
+	c.Proxy.SetCallback(d.loggerCallback)
+	return c, nil
+}
+
+func (d *Dockmon) sendEvent(action string, c *container.Container) {
 	d.eventChan <- &Event{
 		Action:    action,
-		Container: con,
+		Container: c,
 	}
-	d.logger.LogContainerUpdate(con.ID, action)
 }
 
 func (d *Dockmon) add(ctx context.Context, id string) {
 	if con, err := d.newContainerFromClient(ctx, d.client, id); err == nil {
 		d.conMap.Insert(id, con)
 		d.sendEvent(Create, con)
-		if con.Running {
+		if !con.Disabled {
 			d.sendEvent(Start, con)
 		}
 	}
 }
 
-func (d *Dockmon) toggleState(id string, running bool) {
+func (d *Dockmon) toggleState(id string, disable bool) {
 	if v, ok := d.conMap[id]; ok {
-		con := v.(*Container)
-		con.Running = running
-		if running {
-			d.sendEvent(Start, con)
+		c := v.(*container.Container)
+		if disable {
+			c.Disable(containerStoppedMessage)
+			d.sendEvent(Die, c)
 		} else {
-			d.sendEvent(Die, con)
+			c.Enable()
+			d.sendEvent(Start, c)
 		}
 	}
 }
@@ -96,9 +124,9 @@ func (d *Dockmon) sync(ctx context.Context) error {
 
 	// Create a StringMap of the containers from the new list
 	newConMap := util.StringMap{}
-	for _, con := range containers {
-		newConMap.Insert(con.ID, &Container{
-			Running: con.State == "running",
+	for _, c := range containers {
+		newConMap.Insert(c.ID, &container.Container{
+			Disabled: c.State != "running",
 		})
 	}
 
@@ -108,9 +136,9 @@ func (d *Dockmon) sync(ctx context.Context) error {
 	for conID, v := range newConMap {
 		oldV, ok := d.conMap[conID]
 		if ok {
-			con := oldV.(*Container)
-			if v.(*Container).Running != con.Running {
-				d.toggleState(conID, con.Running)
+			c := oldV.(*container.Container)
+			if v.(*container.Container).Disabled != c.Disabled {
+				d.toggleState(conID, c.Disabled)
 			}
 		} else {
 			d.add(ctx, conID)
@@ -120,7 +148,7 @@ func (d *Dockmon) sync(ctx context.Context) error {
 	// Remove the containers that we don't know were stopped
 	for conID, v := range d.conMap.Difference(newConMap) {
 		d.conMap.Remove(conID)
-		d.sendEvent(Destroy, v.(*Container))
+		d.sendEvent(Destroy, v.(*container.Container))
 	}
 
 	return nil
@@ -140,12 +168,12 @@ func (d *Dockmon) loop(ctx context.Context) error {
 			case Destroy:
 				if v, ok := d.conMap[msg.ID]; ok {
 					d.conMap.Remove(msg.ID)
-					d.sendEvent(Destroy, v.(*Container))
+					d.sendEvent(Destroy, v.(*container.Container))
 				}
 			case Start:
-				d.toggleState(msg.ID, true)
-			case Die:
 				d.toggleState(msg.ID, false)
+			case Die:
+				d.toggleState(msg.ID, true)
 			}
 		case err := <-errChan:
 			return err
