@@ -7,11 +7,13 @@ import (
 	"net/url"
 
 	"github.com/go-chi/chi"
-	"github.com/nathan-osman/i5/logger"
 	"github.com/nathan-osman/i5/util"
 )
 
 const ContextSecure = "secure"
+
+// CallbackFn provides a callback function for logging request data.
+type CallbackFn func(resp *http.Response)
 
 // Mountpoint represents a static path and directory on-disk.
 type Mountpoint struct {
@@ -21,9 +23,9 @@ type Mountpoint struct {
 
 // Proxy acts as a reverse proxy and static file server for a specific site.
 type Proxy struct {
-	addr   string
-	router *chi.Mux
-	logger *logger.Logger
+	addr       string
+	router     *chi.Mux
+	callbackFn CallbackFn
 }
 
 func applyBranding(header http.Header) {
@@ -55,7 +57,9 @@ func (p *Proxy) handle(w http.ResponseWriter, r *http.Request) {
 			}
 		},
 		ModifyResponse: func(resp *http.Response) error {
-			p.logger.LogResponse(resp)
+			if p.callbackFn != nil {
+				p.callbackFn(resp)
+			}
 			applyBranding(resp.Header)
 			return nil
 		},
@@ -70,7 +74,6 @@ func New(cfg *Config) *Proxy {
 	p := &Proxy{
 		addr:   cfg.Addr,
 		router: chi.NewRouter(),
-		logger: cfg.Logger,
 	}
 	for _, m := range cfg.Mountpoints {
 		p.router.Handle(
@@ -87,6 +90,11 @@ func New(cfg *Config) *Proxy {
 		p.router.HandleFunc("/*", p.handle)
 	}
 	return p
+}
+
+// SetCallback specifies a callback for requests & responses.
+func (p *Proxy) SetCallback(callbackFn CallbackFn) {
+	p.callbackFn = callbackFn
 }
 
 func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
