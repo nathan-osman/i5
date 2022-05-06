@@ -57,6 +57,7 @@ func (d *Dockmon) sendEvent(action string, con *Container) {
 		Action:    action,
 		Container: con,
 	}
+	d.logger.LogContainerUpdate(con.ID, action)
 }
 
 func (d *Dockmon) add(ctx context.Context, id string) {
