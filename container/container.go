@@ -114,6 +114,7 @@ func New(id, name string, labels map[string]string) (*Container, error) {
 // Disable prevents clients from accessing the container and returns a static
 // page with the specified message.
 func (c *Container) Disable(message string) {
+	c.Disabled = true
 	c.Handler = &disabledHandler{
 		Message: message,
 	}
@@ -121,5 +122,6 @@ func (c *Container) Disable(message string) {
 
 // Enable reverts the container to the proxy handler.
 func (c *Container) Enable() {
+	c.Disabled = false
 	c.Handler = c.Proxy
 }
