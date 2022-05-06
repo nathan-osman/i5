@@ -5,6 +5,7 @@ import Splash from './splash'
 import Spinner from './spinner'
 import { useApi } from '../lib/api'
 import { PopupProvider } from '../lib/popup'
+import { WebSocketProvider } from '../lib/websocket'
 
 export default function Page() {
 
@@ -31,10 +32,13 @@ export default function Page() {
 
   return (
     <PopupProvider>
-      <Header />
-      <div className="container">
-        <Outlet />
-      </div>
+
+      <WebSocketProvider>
+        <Header />
+        <div className="container">
+          <Outlet />
+        </div>
+      </WebSocketProvider>
     </PopupProvider>
   )
 }
