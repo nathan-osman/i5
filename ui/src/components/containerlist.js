@@ -14,12 +14,14 @@ export default function ContainerList() {
       render: row => row.name
     },
     {
-      title: "Domain",
+      title: "Domains",
       expand: true,
-      render: row => (
-        <a href={`https://${row.domain}`} target="_blank">
-          {row.domain}
-        </a>
+      render: row => row.domains.map(domain =>
+        <div key={domain.id}>
+          <a href={`https://${domain}`} target="_blank">
+            {domain}
+          </a>
+        </div>
       )
     },
     {

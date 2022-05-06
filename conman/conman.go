@@ -18,6 +18,7 @@ var (
 type Conman struct {
 	mutex      sync.RWMutex
 	log        *logrus.Entry
+	idMap      util.StringMap
 	domainMap  util.StringMap
 	eventChan  <-chan *dockmon.Event
 	dbman      *dbman.Manager
@@ -72,6 +73,7 @@ func (c *Conman) run() {
 func New(cfg *Config) *Conman {
 	c := &Conman{
 		log:        logrus.WithField("context", "conman"),
+		idMap:      util.StringMap{},
 		domainMap:  util.StringMap{},
 		eventChan:  cfg.EventChan,
 		dbman:      cfg.Dbman,
@@ -85,6 +87,7 @@ func New(cfg *Config) *Conman {
 func (c *Conman) Add(con *dockmon.Container) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
+	c.idMap.Insert(con.ID, con)
 	for _, domain := range con.Domains {
 		c.log.Debugf("created container for %s", domain)
 		c.domainMap.Insert(domain, con)
@@ -99,6 +102,7 @@ func (c *Conman) Add(con *dockmon.Container) {
 func (c *Conman) Remove(con *dockmon.Container) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
+	c.idMap.Remove(con.ID)
 	for _, domain := range con.Domains {
 		c.log.Debugf("removed container for %s", domain)
 		c.domainMap.Remove(domain)
@@ -108,6 +112,7 @@ func (c *Conman) Remove(con *dockmon.Container) {
 func (c *Conman) ToggleState(con *dockmon.Container, running bool) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
+	c.idMap.Insert(con.ID, con)
 	for _, domain := range con.Domains {
 		c.log.Debugf("toggled %s running to %t", domain, running)
 		c.domainMap.Insert(domain, con)
