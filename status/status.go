@@ -9,6 +9,7 @@ import (
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/nathan-osman/i5/conman"
+	"github.com/nathan-osman/i5/container"
 	"github.com/nathan-osman/i5/db"
 	"github.com/nathan-osman/i5/dbman"
 	"github.com/nathan-osman/i5/dockmon"
@@ -20,7 +21,7 @@ const sessionName = "status"
 
 // Status provides a set of endpoints that display status information.
 type Status struct {
-	Container *dockmon.Container
+	Container *container.Container
 	conman    *conman.Conman
 	dockmon   *dockmon.Dockmon
 	dbman     *dbman.Manager
@@ -69,11 +70,10 @@ func New(cfg *Config) *Status {
 		r.HandleContext(c)
 		c.Abort()
 	})
-	s.Container = &dockmon.Container{
+	s.Container = &container.Container{
 		Domains:  []string{cfg.Domain},
 		Insecure: cfg.Insecure,
 		Handler:  r,
-		Running:  true,
 	}
 	return s
 }
