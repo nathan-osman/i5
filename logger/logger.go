@@ -1,11 +1,16 @@
 package logger
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/nathan-osman/geolocator"
 	"github.com/nathan-osman/geolocator/ip2location"
 	"github.com/nathan-osman/go-herald"
+)
+
+var (
+	errNoGeolocator = errors.New("no geolocation database provided")
 )
 
 // Logger acts as a centralized component for ingesting data from the other
@@ -29,12 +34,9 @@ func New(cfg *Config) (*Logger, error) {
 	if err != nil {
 		return nil, err
 	}
-	var h *herald.Herald
-	if cfg.Status {
-		h = herald.New()
-		h.SetCheckOrigin(func(r *http.Request) bool { return true })
-		h.Start()
-	}
+	h := herald.New()
+	h.SetCheckOrigin(func(r *http.Request) bool { return true })
+	h.Start()
 	return &Logger{
 		geolocator: p,
 		herald:     h,
@@ -47,11 +49,25 @@ func (l *Logger) AddClient(w http.ResponseWriter, r *http.Request) error {
 	return err
 }
 
+func (l *Logger) Geolocate(host string) (*geolocator.Response, error) {
+	if l.geolocator != nil {
+		return l.geolocator.Geolocate(host)
+	}
+	return nil, errNoGeolocator
+}
+
+func (l *Logger) Log(action string, data interface{}) {
+	m, err := herald.NewMessage(action, data)
+	if err != nil {
+		// TODO: something other than panic here
+		panic(err)
+	}
+	l.herald.Send(m, nil)
+}
+
 // Close shuts down the logger.
 func (l *Logger) Close() {
-	if l.herald != nil {
-		l.herald.Close()
-	}
+	l.herald.Close()
 	if l.geolocator != nil {
 		l.geolocator.Close()
 	}

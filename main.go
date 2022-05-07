@@ -191,10 +191,8 @@ func main() {
 
 			// Create the logger
 			l, err := logger.New(&logger.Config{
-				Debug:             c.Bool("debug"),
 				GeolocationDBType: c.String("geolocation-db-type"),
 				GeolocationDBPath: c.String("geolocation-db-path"),
-				Status:            statusDomain != "",
 			})
 			if err != nil {
 				return err

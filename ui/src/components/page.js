@@ -32,7 +32,6 @@ export default function Page() {
 
   return (
     <PopupProvider>
-
       <WebSocketProvider>
         <Header />
         <div className="container">

@@ -2,7 +2,6 @@ package dockmon
 
 import (
 	"context"
-	"net/http"
 	"time"
 
 	"github.com/docker/docker/api/types"
@@ -25,6 +24,8 @@ const (
 	Die = "die"
 
 	containerStoppedMessage = "The container serving this application is not currently running."
+
+	messageTypeContainer = "container"
 )
 
 var evtOptions = types.EventsOptions{
@@ -56,10 +57,6 @@ type Dockmon struct {
 	closedChan chan bool
 }
 
-func (d *Dockmon) loggerCallback(resp *http.Response) {
-	d.logger.LogResponse(resp)
-}
-
 func (d *Dockmon) newContainerFromClient(ctx context.Context, client *client.Client, id string) (*container.Container, error) {
 	containerJSON, err := client.ContainerInspect(ctx, id)
 	if err != nil {
@@ -76,8 +73,13 @@ func (d *Dockmon) newContainerFromClient(ctx context.Context, client *client.Cli
 	if !containerJSON.State.Running {
 		c.Disable(containerStoppedMessage)
 	}
-	c.Proxy.SetCallback(d.loggerCallback)
+	c.Proxy.SetCallback(d.responseCallback)
 	return c, nil
+}
+
+type messageContainer struct {
+	Action    string               `json:"action"`
+	Container *container.Container `json:"container"`
 }
 
 func (d *Dockmon) sendEvent(action string, c *container.Container) {
@@ -85,6 +87,10 @@ func (d *Dockmon) sendEvent(action string, c *container.Container) {
 		Action:    action,
 		Container: c,
 	}
+	d.logger.Log(messageTypeContainer, &messageContainer{
+		Action:    action,
+		Container: c,
+	})
 }
 
 func (d *Dockmon) add(ctx context.Context, id string) {
