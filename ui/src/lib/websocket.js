@@ -7,9 +7,11 @@ function WebSocketProvider({ children }) {
 
   const popup = usePopup()
 
-  const eventTarget = new EventTarget()
+  const eventTarget = useMemo(() => new EventTarget(), [])
 
-  const webSocket = useMemo(() => {
+  // TODO: automatic reconnection when connection is lost
+
+  useEffect(() => {
     const secure = location.protocol.startsWith('https')
     const webSocket = new WebSocket(
       `${secure ? 'wss' : 'ws'}://${location.host}/api/ws`
@@ -27,10 +29,6 @@ function WebSocketProvider({ children }) {
         popup.info("WebSocket connection lost")
       }
     }
-    return webSocket
-  }, [])
-
-  useEffect(() => {
     return () => {
       webSocket.close()
     }
