@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import ReactTimeAgo from 'react-time-ago'
 import Data from './data'
 import Table from './table'
 import Tool from './tool'
@@ -24,6 +25,10 @@ export default function ContainerList() {
           </a>
         </div>
       )
+    },
+    {
+      title: "Uptime",
+      render: row => <ReactTimeAgo date={new Date(row.uptime)} />
     },
     {
       title: "Status",

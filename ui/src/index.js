@@ -7,6 +7,8 @@ import {
   Routes,
   Route
 } from 'react-router-dom'
+import TimeAgo from 'javascript-time-ago'
+import en from 'javascript-time-ago/locale/en.json'
 import App from './app'
 import Page from './components/page'
 import Splash from './components/splash'
@@ -15,6 +17,8 @@ import Containers from './routes/containers'
 import Requests from './routes/requests'
 import Login from './routes/login'
 import './index.css'
+
+TimeAgo.addDefaultLocale(en)
 
 const root = createRoot(
   document.getElementById('root')
