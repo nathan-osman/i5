@@ -19,7 +19,7 @@ export default function ContainerList() {
       title: "Domains",
       expand: true,
       render: row => row.domains.map(domain =>
-        <div key={domain.id}>
+        <div key={domain}>
           <a href={`https://${domain}`} target="_blank">
             {domain}
           </a>
