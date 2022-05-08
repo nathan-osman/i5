@@ -28,7 +28,9 @@ export default function ContainerList() {
     },
     {
       title: "Uptime",
-      render: row => <ReactTimeAgo date={new Date(row.uptime)} />
+      render: row => row.uptime ?
+        <ReactTimeAgo date={row.uptime * 1000} /> :
+        <></>
     },
     {
       title: "Status",

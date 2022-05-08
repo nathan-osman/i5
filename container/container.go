@@ -37,12 +37,12 @@ type Database struct {
 
 // ContainerData provides a base type for container data.
 type ContainerData struct {
-	ID       string    `json:"id"`
-	Name     string    `json:"name"`
-	Domains  []string  `json:"domains"`
-	Insecure bool      `json:"insecure"`
-	Disabled bool      `json:"disabled"`
-	Uptime   time.Time `json:"uptime"`
+	ID       string   `json:"id"`
+	Name     string   `json:"name"`
+	Domains  []string `json:"domains"`
+	Insecure bool     `json:"insecure"`
+	Disabled bool     `json:"disabled"`
+	Uptime   int64    `json:"uptime"`
 }
 
 // Container represents configuration for a Docker container with i5 metadata.
@@ -124,6 +124,7 @@ func New(id, name string, labels map[string]string) (*Container, error) {
 // page with the specified message.
 func (c *Container) Disable(message string) {
 	c.Disabled = true
+	c.Uptime = 0
 	c.Handler = &disabledHandler{
 		Message: message,
 	}
@@ -132,5 +133,6 @@ func (c *Container) Disable(message string) {
 // Enable reverts the container to the proxy handler.
 func (c *Container) Enable() {
 	c.Disabled = false
+	c.Uptime = time.Now().Unix()
 	c.Handler = c.Proxy
 }

@@ -70,8 +70,8 @@ func (d *Dockmon) newContainerFromClient(ctx context.Context, client *client.Cli
 	if err != nil {
 		return nil, err
 	}
-	if t, err := time.Parse(time.RFC3339, containerJSON.Created); err == nil {
-		c.Uptime = t
+	if t, err := time.Parse(time.RFC3339, containerJSON.State.StartedAt); err == nil && !t.IsZero() {
+		c.Uptime = t.Unix()
 	}
 	if !containerJSON.State.Running {
 		c.Disable(containerStoppedMessage)
