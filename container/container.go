@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/nathan-osman/i5/proxy"
 )
@@ -34,16 +35,22 @@ type Database struct {
 	Password string
 }
 
+// ContainerData provides a base type for container data.
+type ContainerData struct {
+	ID       string    `json:"id"`
+	Name     string    `json:"name"`
+	Domains  []string  `json:"domains"`
+	Insecure bool      `json:"insecure"`
+	Disabled bool      `json:"disabled"`
+	Uptime   time.Time `json:"uptime"`
+}
+
 // Container represents configuration for a Docker container with i5 metadata.
 type Container struct {
-	ID       string       `json:"id"`
-	Name     string       `json:"name"`
-	Domains  []string     `json:"domains"`
-	Insecure bool         `json:"insecure"`
-	Disabled bool         `json:"disabled"`
-	Database *Database    `json:"-"`
-	Handler  http.Handler `json:"-"`
-	Proxy    *proxy.Proxy `json:"-"`
+	ContainerData
+	Database *Database
+	Handler  http.Handler
+	Proxy    *proxy.Proxy
 }
 
 func getWithDefault(m map[string]string, key, def string) string {
@@ -58,8 +65,10 @@ func New(id, name string, labels map[string]string) (*Container, error) {
 	var (
 		cfg = &proxy.Config{}
 		c   = &Container{
-			ID:   id,
-			Name: name,
+			ContainerData: ContainerData{
+				ID:   id,
+				Name: name,
+			},
 		}
 	)
 	if addr, ok := labels[labelAddr]; ok {

@@ -6,7 +6,7 @@ import (
 	"sort"
 
 	"github.com/gin-gonic/gin"
-	"github.com/nathan-osman/i5/conman"
+	"github.com/nathan-osman/i5/container"
 )
 
 const (
@@ -26,7 +26,7 @@ func (s *Status) apiStatus(c *gin.Context) {
 	})
 }
 
-type byName []*conman.Info
+type byName []container.ContainerData
 
 func (n byName) Len() int           { return len(n) }
 func (n byName) Swap(i, j int)      { n[i], n[j] = n[j], n[i] }

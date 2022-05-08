@@ -67,6 +67,9 @@ func (d *Dockmon) newContainerFromClient(ctx context.Context, client *client.Cli
 		containerJSON.Name[1:],
 		containerJSON.Config.Labels,
 	)
+	if t, err := time.Parse(time.RFC3339, containerJSON.Created); err == nil {
+		c.Uptime = t
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -78,8 +81,8 @@ func (d *Dockmon) newContainerFromClient(ctx context.Context, client *client.Cli
 }
 
 type messageContainer struct {
-	Action    string               `json:"action"`
-	Container *container.Container `json:"container"`
+	Action    string                  `json:"action"`
+	Container container.ContainerData `json:"container"`
 }
 
 func (d *Dockmon) sendEvent(action string, c *container.Container) {
@@ -89,7 +92,7 @@ func (d *Dockmon) sendEvent(action string, c *container.Container) {
 	}
 	d.logger.Log(messageTypeContainer, &messageContainer{
 		Action:    action,
-		Container: c,
+		Container: c.ContainerData,
 	})
 }
 
@@ -132,7 +135,9 @@ func (d *Dockmon) sync(ctx context.Context) error {
 	newConMap := util.StringMap{}
 	for _, c := range containers {
 		newConMap.Insert(c.ID, &container.Container{
-			Disabled: c.State != "running",
+			ContainerData: container.ContainerData{
+				Disabled: c.State != "running",
+			},
 		})
 	}
 

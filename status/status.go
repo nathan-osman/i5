@@ -71,9 +71,11 @@ func New(cfg *Config) *Status {
 		c.Abort()
 	})
 	s.Container = &container.Container{
-		Domains:  []string{cfg.Domain},
-		Insecure: cfg.Insecure,
-		Handler:  r,
+		ContainerData: container.ContainerData{
+			Domains:  []string{cfg.Domain},
+			Insecure: cfg.Insecure,
+		},
+		Handler: r,
 	}
 	return s
 }
