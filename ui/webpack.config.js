@@ -79,6 +79,7 @@ module.exports = {
   performance: {
     hints: false,
   },
+  devtool: 'nosources-source-map',
   devServer: {
     historyApiFallback: true,
     proxy: [
