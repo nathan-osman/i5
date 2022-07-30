@@ -64,24 +64,22 @@ export default function ContainerList() {
 
   const [containers, setContainers] = useState([])
 
-  // TODO: sort containers by name
-
   useEffect(() => {
     function processContainerAction(e) {
       const container = e.detail.container
       switch (e.detail.action) {
         case 'create':
           setContainers(containers => [...containers, container])
-          break;
+          break
         case 'destroy':
           setContainers(containers => containers.filter(c => c.id != container.id))
-          break;
+          break
         case 'start':
         case 'die':
           setContainers(containers => containers.map(c => {
             return c.id == container.id ? container : c
           }))
-          break;
+          break
       }
     }
     webSocket.addEventListener('container', processContainerAction)
@@ -91,6 +89,13 @@ export default function ContainerList() {
   }, [])
 
   function handleData(d) {
+    d.sort((a, b) => {
+      const titleA = a.title.toUpperCase()
+      const titleB = b.title.toUpperCase()
+      if (titleA < titleB) { return -1 }
+      if (titleB < titleA) { return 1 }
+      return 0
+    })
     setContainers(d)
   }
 
