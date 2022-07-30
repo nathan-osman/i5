@@ -19,6 +19,7 @@ const (
 	labelDatabaseUser     = "i5.database.user"
 	labelDatabasePassword = "i5.database.password"
 	labelMountpoints      = "i5.mountpoints"
+	labelTitle            = "i5.title"
 )
 
 var (
@@ -39,6 +40,7 @@ type Database struct {
 type ContainerData struct {
 	ID       string   `json:"id"`
 	Name     string   `json:"name"`
+	Title    string   `json:"title"`
 	Domains  []string `json:"domains"`
 	Insecure bool     `json:"insecure"`
 	Disabled bool     `json:"disabled"`
@@ -66,8 +68,9 @@ func New(id, name string, labels map[string]string) (*Container, error) {
 		cfg = &proxy.Config{}
 		c   = &Container{
 			ContainerData: ContainerData{
-				ID:   id,
-				Name: name,
+				ID:    id,
+				Name:  name,
+				Title: name,
 			},
 		}
 	)
@@ -114,6 +117,9 @@ func New(id, name string, labels map[string]string) (*Container, error) {
 	}
 	if cfg.Addr == "" && cfg.Mountpoints == nil {
 		return nil, errMissingAddrOrMountpoints
+	}
+	if title, ok := labels[labelTitle]; ok {
+		c.Title = title
 	}
 	c.Proxy = proxy.New(cfg)
 	c.Enable()

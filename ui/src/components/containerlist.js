@@ -13,7 +13,7 @@ export default function ContainerList() {
   const headers = [
     {
       title: "Name",
-      render: row => row.name
+      render: row => row.title
     },
     {
       title: "Domains",
