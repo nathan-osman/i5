@@ -23,8 +23,6 @@ const (
 	// Die indicates that a container has been stopped.
 	Die = "die"
 
-	containerStoppedMessage = "The container serving this application is not currently running."
-
 	messageTypeContainer = "container"
 )
 
@@ -66,15 +64,13 @@ func (d *Dockmon) newContainerFromClient(ctx context.Context, client *client.Cli
 		containerJSON.ID,
 		containerJSON.Name[1:],
 		containerJSON.Config.Labels,
+		containerJSON.State.Running,
 	)
 	if err != nil {
 		return nil, err
 	}
 	if t, err := time.Parse(time.RFC3339, containerJSON.State.StartedAt); err == nil && !t.IsZero() {
 		c.Uptime = t.Unix()
-	}
-	if !containerJSON.State.Running {
-		c.Disable(containerStoppedMessage)
 	}
 	c.Proxy.SetCallback(d.responseCallback)
 	return c, nil
@@ -100,21 +96,21 @@ func (d *Dockmon) add(ctx context.Context, id string) {
 	if con, err := d.newContainerFromClient(ctx, d.client, id); err == nil {
 		d.conMap.Insert(id, con)
 		d.sendEvent(Create, con)
-		if !con.Disabled {
+		if con.Running {
 			d.sendEvent(Start, con)
 		}
 	}
 }
 
-func (d *Dockmon) toggleState(id string, disable bool) {
+func (d *Dockmon) toggleState(id string, running bool) {
 	if v, ok := d.conMap[id]; ok {
 		c := v.(*container.Container)
-		if disable {
-			c.Disable(containerStoppedMessage)
-			d.sendEvent(Die, c)
-		} else {
-			c.Enable()
+		if running {
+			c.Started()
 			d.sendEvent(Start, c)
+		} else {
+			c.Stopped()
+			d.sendEvent(Die, c)
 		}
 	}
 }
@@ -136,7 +132,7 @@ func (d *Dockmon) sync(ctx context.Context) error {
 	for _, c := range containers {
 		newConMap.Insert(c.ID, &container.Container{
 			ContainerData: container.ContainerData{
-				Disabled: c.State != "running",
+				Running: c.State == "running",
 			},
 		})
 	}
@@ -148,8 +144,8 @@ func (d *Dockmon) sync(ctx context.Context) error {
 		oldV, ok := d.conMap[conID]
 		if ok {
 			c := oldV.(*container.Container)
-			if v.(*container.Container).Disabled != c.Disabled {
-				d.toggleState(conID, c.Disabled)
+			if v.(*container.Container).Running != c.Running {
+				d.toggleState(conID, c.Running)
 			}
 		} else {
 			d.add(ctx, conID)
@@ -182,9 +178,9 @@ func (d *Dockmon) loop(ctx context.Context) error {
 					d.sendEvent(Destroy, v.(*container.Container))
 				}
 			case Start:
-				d.toggleState(msg.ID, false)
-			case Die:
 				d.toggleState(msg.ID, true)
+			case Die:
+				d.toggleState(msg.ID, false)
 			}
 		case err := <-errChan:
 			return err

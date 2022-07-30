@@ -38,13 +38,14 @@ type Database struct {
 
 // ContainerData provides a base type for container data.
 type ContainerData struct {
-	ID       string   `json:"id"`
-	Name     string   `json:"name"`
-	Title    string   `json:"title"`
-	Domains  []string `json:"domains"`
-	Insecure bool     `json:"insecure"`
-	Disabled bool     `json:"disabled"`
-	Uptime   int64    `json:"uptime"`
+	ID          string   `json:"id"`
+	Name        string   `json:"name"`
+	Title       string   `json:"title"`
+	Domains     []string `json:"domains"`
+	Insecure    bool     `json:"insecure"`
+	Running     bool     `json:"running"`
+	Maintenance bool     `json:"maintenance"`
+	Uptime      int64    `json:"uptime"`
 }
 
 // Container represents configuration for a Docker container with i5 metadata.
@@ -63,7 +64,7 @@ func getWithDefault(m map[string]string, key, def string) string {
 }
 
 // New creates a new Container instance from the provided labels.
-func New(id, name string, labels map[string]string) (*Container, error) {
+func New(id, name string, labels map[string]string, running bool) (*Container, error) {
 	var (
 		cfg = &proxy.Config{}
 		c   = &Container{
@@ -122,23 +123,26 @@ func New(id, name string, labels map[string]string) (*Container, error) {
 		c.Title = title
 	}
 	c.Proxy = proxy.New(cfg)
-	c.Enable()
+	if running {
+		c.Started()
+	} else {
+		c.Stopped()
+	}
 	return c, nil
 }
 
-// Disable prevents clients from accessing the container and returns a static
-// page with the specified message.
-func (c *Container) Disable(message string) {
-	c.Disabled = true
-	c.Uptime = 0
-	c.Handler = &disabledHandler{
-		Message: message,
-	}
-}
-
-// Enable reverts the container to the proxy handler.
-func (c *Container) Enable() {
-	c.Disabled = false
+// Started switches the handler to the proxy for the container.
+func (c *Container) Started() {
+	c.Running = true
 	c.Uptime = time.Now().Unix()
 	c.Handler = c.Proxy
+}
+
+// Stopped switches the handler to the static "stopped" message.
+func (c *Container) Stopped() {
+	c.Running = false
+	c.Uptime = 0
+	c.Handler = &disabledHandler{
+		Message: stoppedContainerMessage,
+	}
 }

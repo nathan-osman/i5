@@ -36,27 +36,34 @@ export default function ContainerList() {
       title: "Status",
       render: row => (
         <div className={styles.status}>
-          {row.disabled ?
-            <span className={styles.stopped}>Stopped</span> :
-            <span className={styles.running}>Running</span>
+          {row.running ?
+            <span className={styles.running}>Running</span> :
+            <span className={styles.stopped}>Stopped</span>
           }
         </div>
       )
     },
     {
       title: "Tools",
-      right: true,
-      render: row => row.disabled ?
-        <Tool
-          src={startIcon}
-          url={`/api/containers/${row.id}/state`}
-          data={{ action: 'start' }}
-        /> :
-        <Tool
-          src={stopIcon}
-          url={`/api/containers/${row.id}/state`}
-          data={{ action: 'stop' }}
-        />
+      render: row => (
+        <>
+          {
+            row.running ?
+              <Tool
+                src={stopIcon}
+                url={`/api/containers/${row.id}/state`}
+                data={{ action: 'stop' }}
+                title="Stop the container"
+              /> :
+              <Tool
+                src={startIcon}
+                url={`/api/containers/${row.id}/state`}
+                data={{ action: 'start' }}
+                title="Start the container"
+              />
+          }
+        </>
+      )
     }
   ]
 

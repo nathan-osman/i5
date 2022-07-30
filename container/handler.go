@@ -6,6 +6,8 @@ import (
 	"github.com/nathan-osman/i5/util"
 )
 
+const stoppedContainerMessage = "The container serving this application is not currently running."
+
 type disabledHandler struct {
 	Message string
 }

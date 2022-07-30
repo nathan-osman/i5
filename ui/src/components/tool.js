@@ -4,7 +4,7 @@ import { usePopup } from '../lib/popup'
 import styles from './tool.module.css'
 import spinner from '../images/spinner.svg'
 
-export default function Tool({ src, url, data }) {
+export default function Tool({ src, url, data, ...props }) {
 
   const api = useApi()
   const popup = usePopup()
@@ -19,6 +19,11 @@ export default function Tool({ src, url, data }) {
   }
 
   return (
-    <img className={styles.tool} src={isLoading ? spinner : src} onClick={handleClick} />
+    <img
+      className={styles.tool}
+      src={isLoading ? spinner : src}
+      onClick={handleClick}
+      {...props}
+    />
   )
 }
