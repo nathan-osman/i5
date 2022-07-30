@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import ReactTimeAgo from 'react-time-ago'
 import prettyBytes from 'pretty-bytes'
 import { useWebSocket } from '../lib/websocket'
 import Client from './client'
@@ -11,14 +12,7 @@ export default function RequestList() {
   const headers = [
     {
       title: "Time",
-      render: row => <>
-        {row.time.getHours().toString().padStart(2, '0')}:
-        {row.time.getMinutes().toString().padStart(2, '0')}:
-        {row.time.getSeconds().toString().padStart(2, '0')}
-        <small className="secondary">
-          .{row.time.getMilliseconds().toString().padStart(3, '0')}
-        </small>
-      </>
+      render: row => <ReactTimeAgo date={row.time} />
     },
     {
       title: "Client",
