@@ -15,6 +15,7 @@ import Splash from './components/splash'
 import Home from './routes/home'
 import Containers from './routes/containers'
 import Requests from './routes/requests'
+import Database from './routes/database'
 import Login from './routes/login'
 import './index.css'
 
@@ -32,6 +33,7 @@ root.render(
           <Route path="/" element={<Home />} />
           <Route path="/containers" element={<Containers />} />
           <Route path="/requests" element={<Requests />} />
+          <Route path="/db/:name" element={<Database />} />
         </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/*" element={

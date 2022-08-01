@@ -64,14 +64,23 @@ export default function Header() {
             <div className={styles.menu_inner}>
               <ActiveLink href="/containers">Containers</ActiveLink>
               <ActiveLink href="/requests">Requests</ActiveLink>
+              {
+                Object.entries(api.status.databases).map(([k, v]) => (
+                  <ActiveLink key={k} href={`/db/${k}`}>
+                    {v.title}
+                  </ActiveLink>
+                ))
+              }
             </div>
             <div className={styles.separator} />
             <div className={styles.menu_inner}>
-              <a href="#" onClick={handleLogout}>Logout</a>
+              <a href="#" onClick={handleLogout}>
+                Logout ({api.status.username})
+              </a>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </div >
   )
 }

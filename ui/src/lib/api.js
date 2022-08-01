@@ -1,4 +1,5 @@
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 class HttpError extends Error {
   constructor(response, message) {
@@ -11,7 +12,11 @@ const ApiContext = createContext(null)
 
 function ApiProvider({ children }) {
 
+  const navigate = useNavigate()
+
   const [isActive, setIsActive] = useState(false)
+  const [isLoggingIn, setIsLoggingIn] = useState(true)
+  const [status, setStatus] = useState(null)
 
   async function fetchInternal(url, data) {
     let init
@@ -39,6 +44,8 @@ function ApiProvider({ children }) {
 
   const api = {
     isActive,
+    isLoggingIn,
+    status,
     fetch: async (url, data) => {
       setIsActive(true)
       try {
@@ -48,6 +55,17 @@ function ApiProvider({ children }) {
       }
     },
   }
+
+  useEffect(() => {
+    api.fetch('/api/status')
+      .then(d => {
+        setIsLoggingIn(false)
+        setStatus(d)
+      })
+      .catch(() => {
+        navigate(`/login?url=${location.pathname}`)
+      })
+  }, [])
 
   return (
     <ApiContext.Provider value={api}>
