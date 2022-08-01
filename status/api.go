@@ -16,13 +16,35 @@ const (
 	errInvalidAction = "invalid action specified"
 )
 
+type apiStatusDatabaseResponse struct {
+	Name    string `json:"name"`
+	Title   string `json:"title"`
+	Version string `json:"version"`
+}
+
 type apiStatusResponse struct {
-	Startup int64 `json:"startup"`
+	Startup   int64                        `json:"startup"`
+	Databases []*apiStatusDatabaseResponse `json:"databases"`
 }
 
 func (s *Status) apiStatus(c *gin.Context) {
+	var (
+		l         = s.dbman.List()
+		databases = []*apiStatusDatabaseResponse{}
+	)
+	for _, d := range l {
+		databases = append(
+			databases,
+			&apiStatusDatabaseResponse{
+				Name:    d.Name(),
+				Title:   d.Title(),
+				Version: d.Version(),
+			},
+		)
+	}
 	c.JSON(http.StatusOK, &apiStatusResponse{
-		Startup: s.startup,
+		Startup:   s.startup,
+		Databases: databases,
 	})
 }
 
