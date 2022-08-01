@@ -74,7 +74,8 @@ module.exports = {
   },
   output: {
     clean: true,
-    filename: '[name].[contenthash].js'
+    filename: '[name].[contenthash].js',
+    publicPath: '/'
   },
   performance: {
     hints: false,
