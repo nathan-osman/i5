@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"sort"
 
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/nathan-osman/i5/container"
 )
@@ -17,32 +18,33 @@ const (
 )
 
 type apiStatusDatabaseResponse struct {
-	Name    string `json:"name"`
 	Title   string `json:"title"`
 	Version string `json:"version"`
 }
 
 type apiStatusResponse struct {
-	Startup   int64                        `json:"startup"`
-	Databases []*apiStatusDatabaseResponse `json:"databases"`
+	Username  string                                `json:"username"`
+	Startup   int64                                 `json:"startup"`
+	Databases map[string]*apiStatusDatabaseResponse `json:"databases"`
 }
 
 func (s *Status) apiStatus(c *gin.Context) {
 	var (
 		l         = s.dbman.List()
-		databases = []*apiStatusDatabaseResponse{}
+		databases = map[string]*apiStatusDatabaseResponse{}
 	)
 	for _, d := range l {
-		databases = append(
-			databases,
-			&apiStatusDatabaseResponse{
-				Name:    d.Name(),
-				Title:   d.Title(),
-				Version: d.Version(),
-			},
-		)
+		databases[d.Name()] = &apiStatusDatabaseResponse{
+			Title:   d.Title(),
+			Version: d.Version(),
+		}
 	}
+	var (
+		session         = sessions.Default(c)
+		sessionUsername = session.Get(sessionUsername).(string)
+	)
 	c.JSON(http.StatusOK, &apiStatusResponse{
+		Username:  sessionUsername,
 		Startup:   s.startup,
 		Databases: databases,
 	})
