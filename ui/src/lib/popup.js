@@ -11,7 +11,7 @@ function PopupProvider({ children }) {
   const [messages, setMessages] = useState([])
 
   function show(message) {
-    setMessages([...messages, message])
+    setMessages(messages => [...messages, message])
   }
 
   const popup = {
