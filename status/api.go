@@ -3,6 +3,7 @@ package status
 import (
 	"context"
 	"net/http"
+	"runtime"
 	"sort"
 
 	"github.com/gin-contrib/sessions"
@@ -23,8 +24,9 @@ type apiStatusDatabaseResponse struct {
 }
 
 type apiStatusResponse struct {
-	Username  string                                `json:"username"`
+	GoVersion string                                `json:"go_version"`
 	Startup   int64                                 `json:"startup"`
+	Username  string                                `json:"username"`
 	Databases map[string]*apiStatusDatabaseResponse `json:"databases"`
 }
 
@@ -44,8 +46,9 @@ func (s *Status) apiStatus(c *gin.Context) {
 		sessionUsername = session.Get(sessionUsername).(string)
 	)
 	c.JSON(http.StatusOK, &apiStatusResponse{
-		Username:  sessionUsername,
+		GoVersion: runtime.Version(),
 		Startup:   s.startup,
+		Username:  sessionUsername,
 		Databases: databases,
 	})
 }

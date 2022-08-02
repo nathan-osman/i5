@@ -72,9 +72,17 @@ a {
   margin-bottom: 24px;
 }
 
+.subtitle {
+  font-size: 24pt;
+}
+
 @media (min-width: 940px) {
   .container {
     margin: auto;
     max-width: 900px;
+  }
+
+  .half {
+    max-width: 50%;
   }
 }
