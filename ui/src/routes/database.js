@@ -1,5 +1,6 @@
-import { useParams } from "react-router-dom"
-import { useApi } from "../lib/api"
+import { useParams } from 'react-router-dom'
+import { useApi } from '../lib/api'
+import DatabaseList from '../components/databaselist'
 
 export default function Database() {
 
@@ -7,8 +8,8 @@ export default function Database() {
 
   let { name } = useParams()
 
-  let dbInfo = api.status.databases[name]
-  if (dbInfo === undefined) {
+  let database = api.status.databases[name]
+  if (database === undefined) {
     return (
       <>
         <div className="title">Not Found</div>
@@ -19,8 +20,12 @@ export default function Database() {
 
   return (
     <>
-      <div className="title">{dbInfo.title}</div>
-      <div className="secondary">{dbInfo.version}</div>
+      <div className="title">{database.title}</div>
+      <div className="secondary">
+        <strong>Version:</strong>{' '}
+        {database.version}
+      </div>
+      <DatabaseList database={database} />
     </>
   )
 }

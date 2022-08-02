@@ -100,6 +100,21 @@ func (p *Postgres) CreateDatabase(name, user string) error {
 	return nil
 }
 
+func (p *Postgres) ListDatabases() ([]string, error) {
+	r, err := p.conn.Query("SELECT datname FROM pg_database WHERE datistemplate = FALSE")
+	if err != nil {
+		return nil, err
+	}
+	defer r.Close()
+	dbNames := []string{}
+	for r.Next() {
+		var dbName string
+		r.Scan(&dbName)
+		dbNames = append(dbNames, dbName)
+	}
+	return dbNames, nil
+}
+
 func (p *Postgres) Close() {
 	p.conn.Close()
 	p.log.Info("disconnected from PostgreSQL")

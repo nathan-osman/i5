@@ -15,10 +15,12 @@ const (
 	containerActionStart = "start"
 	containerActionStop  = "stop"
 
-	errInvalidAction = "invalid action specified"
+	errInvalidAction   = "invalid action specified"
+	errInvalidDatabase = "invalid database specified"
 )
 
 type apiStatusDatabaseResponse struct {
+	Name    string `json:"name"`
 	Title   string `json:"title"`
 	Version string `json:"version"`
 }
@@ -37,6 +39,7 @@ func (s *Status) apiStatus(c *gin.Context) {
 	)
 	for _, d := range l {
 		databases[d.Name()] = &apiStatusDatabaseResponse{
+			Name:    d.Name(),
 			Title:   d.Title(),
 			Version: d.Version(),
 		}
@@ -93,6 +96,23 @@ func (s *Status) apiContainersState(c *gin.Context) {
 		return
 	}
 	success(c)
+}
+
+func (s *Status) apiDbDatabases(c *gin.Context) {
+	var (
+		name = c.Param("name")
+	)
+	d, err := s.dbman.Get(name)
+	if err != nil {
+		failure(c, http.StatusBadRequest, errInvalidDatabase)
+		return
+	}
+	l, err := d.ListDatabases()
+	if err != nil {
+		failure(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	c.JSON(http.StatusOK, l)
 }
 
 func (s *Status) webSocket(c *gin.Context) {

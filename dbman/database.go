@@ -18,6 +18,9 @@ type Database interface {
 	// CreateDatabase ensures that the specified database exists, creating it if not using the provided owner.
 	CreateDatabase(name, user string) error
 
+	// ListDatabases returns a list of databases in the database server.
+	ListDatabases() ([]string, error)
+
 	// Shut down the connection to the database server.
 	Close()
 }

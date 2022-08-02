@@ -87,6 +87,25 @@ func (m *MySQL) CreateDatabase(name, user string) error {
 	return nil
 }
 
+func (m *MySQL) ListDatabases() ([]string, error) {
+	r, err := m.conn.Query("SHOW DATABASES")
+	if err != nil {
+		return nil, err
+	}
+	defer r.Close()
+	dbNames := []string{}
+	for r.Next() {
+		var dbName string
+		r.Scan(&dbName)
+		switch dbName {
+		case "information_schema", "mysql", "performance_schema", "sys":
+		default:
+			dbNames = append(dbNames, dbName)
+		}
+	}
+	return dbNames, nil
+}
+
 func (m *MySQL) Close() {
 	m.conn.Close()
 	m.log.Info("disconnected from MySQL")
