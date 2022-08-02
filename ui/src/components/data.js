@@ -3,7 +3,7 @@ import { useApi } from '../lib/api'
 import Spinner from './spinner'
 import styles from './data.module.css'
 
-export default function Data({ children, url, onData }) {
+export default function Data({ children, url, onData, dependencies = [] }) {
 
   const api = useApi()
 
@@ -12,14 +12,17 @@ export default function Data({ children, url, onData }) {
 
   useEffect(() => {
     api.fetch(url)
-      .then(onData)
+      .then((d) => {
+        setErrorMessage(null)
+        return onData(d)
+      })
       .catch((e) => {
         setErrorMessage(e.message)
       })
       .finally(() => {
         setIsLoading(false)
       })
-  }, [])
+  }, dependencies)
 
   if (isLoading) {
     return (
