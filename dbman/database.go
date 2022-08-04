@@ -21,6 +21,9 @@ type Database interface {
 	// ListDatabases returns a list of databases in the database server.
 	ListDatabases() ([]string, error)
 
+	// DeleteDatabase removes the specified database.
+	DeleteDatabase(name string) error
+
 	// Shut down the connection to the database server.
 	Close()
 }

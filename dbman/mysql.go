@@ -106,6 +106,11 @@ func (m *MySQL) ListDatabases() ([]string, error) {
 	return dbNames, nil
 }
 
+func (m *MySQL) DeleteDatabase(name string) error {
+	_, err := m.conn.Query("DROP DATABASE ?", name)
+	return err
+}
+
 func (m *MySQL) Close() {
 	m.conn.Close()
 	m.log.Info("disconnected from MySQL")

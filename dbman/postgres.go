@@ -115,6 +115,11 @@ func (p *Postgres) ListDatabases() ([]string, error) {
 	return dbNames, nil
 }
 
+func (p *Postgres) DeleteDatabase(name string) error {
+	_, err := p.conn.Query("DROP DATABASE ?", name)
+	return err
+}
+
 func (p *Postgres) Close() {
 	p.conn.Close()
 	p.log.Info("disconnected from PostgreSQL")
