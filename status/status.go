@@ -63,7 +63,8 @@ func New(cfg *Config) *Status {
 		api.GET("/status", s.apiStatus)
 		api.GET("/containers", s.apiContainers)
 		api.POST("/containers/:id/state", s.apiContainersState)
-		api.GET("/db/:name/databases", s.apiDbDatabases)
+		api.GET("/db/:db/databases", s.apiDbDatabases)
+		api.DELETE("/db/:db/databases/:name", s.apiDbDatabasesDelete)
 		api.GET("/ws", s.webSocket)
 	}
 	r.NoRoute(func(c *gin.Context) {

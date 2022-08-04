@@ -100,9 +100,9 @@ func (s *Status) apiContainersState(c *gin.Context) {
 
 func (s *Status) apiDbDatabases(c *gin.Context) {
 	var (
-		name = c.Param("name")
+		db = c.Param("db")
 	)
-	d, err := s.dbman.Get(name)
+	d, err := s.dbman.Get(db)
 	if err != nil {
 		failure(c, http.StatusBadRequest, errInvalidDatabase)
 		return
@@ -113,6 +113,23 @@ func (s *Status) apiDbDatabases(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, l)
+}
+
+func (s *Status) apiDbDatabasesDelete(c *gin.Context) {
+	var (
+		db   = c.Param("db")
+		name = c.Param("name")
+	)
+	d, err := s.dbman.Get(db)
+	if err != nil {
+		failure(c, http.StatusBadRequest, errInvalidDatabase)
+		return
+	}
+	if err := d.DeleteDatabase(name); err != nil {
+		failure(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	success(c)
 }
 
 func (s *Status) webSocket(c *gin.Context) {
