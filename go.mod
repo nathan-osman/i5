@@ -3,7 +3,7 @@ module github.com/nathan-osman/i5
 go 1.16
 
 require (
-	github.com/containerd/containerd v1.6.3 // indirect
+	github.com/containerd/containerd v1.6.12 // indirect
 	github.com/docker/distribution v2.8.1+incompatible // indirect
 	github.com/docker/docker v20.10.14+incompatible
 	github.com/gin-contrib/sessions v0.0.5
@@ -19,5 +19,4 @@ require (
 	github.com/urfave/cli/v2 v2.5.1
 	go.etcd.io/bbolt v1.3.6
 	golang.org/x/crypto v0.0.0-20220427172511-eb4f295cb31f
-	google.golang.org/grpc v1.46.0 // indirect
 )
