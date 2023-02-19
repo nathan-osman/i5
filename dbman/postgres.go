@@ -116,7 +116,9 @@ func (p *Postgres) ListDatabases() ([]string, error) {
 }
 
 func (p *Postgres) DeleteDatabase(name string) error {
-	_, err := p.conn.Query("DROP DATABASE ?", name)
+	_, err := p.conn.Query(
+		fmt.Sprintf("DROP DATABASE %s", pq.QuoteIdentifier(name)),
+	)
 	return err
 }
 
