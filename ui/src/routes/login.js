@@ -19,7 +19,7 @@ export default function Login() {
 
   function handleSubmit(e) {
     e.preventDefault()
-    api.fetch('/auth/login', { username, password })
+    api.fetch('/auth/login', 'post', { username, password })
       .then(() => {
         navigate(url)
       })

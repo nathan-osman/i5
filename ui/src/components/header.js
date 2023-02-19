@@ -26,7 +26,7 @@ export default function Header() {
 
   function handleLogout(e) {
     e.preventDefault()
-    api.fetch('/auth/logout', {})
+    api.fetch('/auth/logout', 'post')
       .then(() => {
         navigate('/login')
       })

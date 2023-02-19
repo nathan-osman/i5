@@ -14,16 +14,11 @@ function ApiProvider({ children }) {
   const [isActive, setIsActive] = useState(false)
   const [status, setStatus] = useState(null)
 
-  async function fetchInternal(url, data) {
-    let init
-    if (typeof data !== 'undefined') {
-      init = {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-      }
+  async function fetchInternal(url, method, data) {
+    let init = { method }
+    if (data != undefined) {
+      init['headers'] = { 'Content-Type': 'application/json' }
+      init['body'] = JSON.stringify(data)
     }
     const response = await fetch(url, init)
     if (!response.ok) {
@@ -41,10 +36,10 @@ function ApiProvider({ children }) {
   const api = {
     isActive,
     status,
-    fetch: async (url, data) => {
+    fetch: async (url, method, data) => {
       setIsActive(true)
       try {
-        return await fetchInternal(url, data)
+        return await fetchInternal(url, method, data)
       } finally {
         setIsActive(false)
       }

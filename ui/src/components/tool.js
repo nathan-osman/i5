@@ -13,7 +13,7 @@ export default function Tool({ src, url, data, ...props }) {
 
   function handleClick() {
     setIsLoading(true)
-    api.fetch(url, data)
+    api.fetch(url, method, data)
       .catch(e => popup.error(e.message))
       .finally(() => setIsLoading(false))
   }
