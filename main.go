@@ -73,7 +73,7 @@ func main() {
 			},
 			&cli.StringFlag{
 				Name:    "mysql-host",
-				Value:   "mysql",
+				Value:   "localhost",
 				EnvVars: []string{"MYSQL_HOST"},
 				Usage:   "hostname of MySQL server",
 			},
@@ -101,7 +101,7 @@ func main() {
 			},
 			&cli.StringFlag{
 				Name:    "postgres-host",
-				Value:   "postgres",
+				Value:   "localhost",
 				EnvVars: []string{"POSTGRES_HOST"},
 				Usage:   "hostname of PostgreSQL server",
 			},
