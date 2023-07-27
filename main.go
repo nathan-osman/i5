@@ -139,6 +139,7 @@ func main() {
 			},
 		},
 		Commands: []*cli.Command{
+			installCommand,
 			{
 				Name:  "createuser",
 				Usage: "create a new user account",
