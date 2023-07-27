@@ -133,6 +133,7 @@ func main() {
 			},
 			&cli.StringFlag{
 				Name:    "storage-dir",
+				Value:   "/var/lib/i5",
 				EnvVars: []string{"STORAGE_DIR"},
 				Usage:   "directory for storing files related to i5",
 			},
