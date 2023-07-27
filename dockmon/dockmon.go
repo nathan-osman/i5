@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/docker/docker/api/types"
+	container_types "github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/client"
 	"github.com/nathan-osman/i5/container"
@@ -246,7 +247,7 @@ func (d *Dockmon) StopContainer(ctx context.Context, id string) error {
 	return d.client.ContainerStop(
 		ctx,
 		id,
-		nil,
+		container_types.StopOptions{},
 	)
 }
 
