@@ -58,8 +58,8 @@ func install(c *cli.Context) error {
 	fmt.Println("  /lib/systemd/system/i5.service")
 	fmt.Println("")
 	fmt.Println("To enable the service and start it, run:")
-	fmt.Println("  systemctl enable lampctl")
-	fmt.Println("  systemctl start lampctl")
+	fmt.Println("  systemctl enable i5")
+	fmt.Println("  systemctl start i5")
 
 	return nil
 }
